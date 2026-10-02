@@ -1,0 +1,10 @@
+mov n, 5 makes n 5, and var spare is 0
+mov copy_of_n, n makes it 5, and mov word holds abas
+after cls the stack holds 0 word(s)
+after a function that cleared its own scratch 0
+after clv, n is a new name holding 6
+a jump to a flag before clf:   and it landed
+after clf kept:   the jump above is the one to unhash
+after clf:   the call and the jump above are the ones to unhash
+after clf, n still holds 8
+after clear the stack holds 0 word(s)

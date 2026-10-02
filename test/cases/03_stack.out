@@ -1,0 +1,25 @@
+the stack is empty, gsp says 0
+after three pushes 3
+popped 10 20 30
+the stack is empty again 0
+after pushing a name that holds 10 1
+and popping it gives 10
+three words are on the stack, gsp says 3
+the top of the stack is at 2
+$n gives 99
+$$$n gives 99
+after mov $n, 'A' it is 65
+word 0 of the stack is 97
+after add $n, 1 it is 98
+pop $1 took one word off, 2
+two bytes of text were pushed, 4
+the last byte is i
+grow 10 made the stack 10 words long
+and slot 9 is 0
+grow -10 took them back, 0
+grow -1000 on a stack of three left 0
+grow n with n at 2 made it 2
+ssp 100 made the stack 100
+ssp 0 made it 0
+cls made it 0
+after a function that cleared its scratch 0

@@ -1,0 +1,126 @@
+## cases/11_loops.abas : loop, endloop, continue and break ##
+
+# 04_flow wrote every loop down longhand: a flag for the head of the body, a
+# jump to go round it again and a jump to walk out of it. loop, endloop,
+# continue and break are those three things under names of their own, so a loop
+# reads the way a loop looks in any other language:
+#
+#   loop              the head of the body, and where a continue lands
+#     ...
+#   continue          go back to the loop this line is written in
+#   break             go to the command under the endloop
+#   endloop           the tail of the body
+#
+# neither loop nor endloop does anything when it runs, and neither one asks a
+# question, so the test is still a cmp and a jump. a break itself is
+# unconditional, so the flag that a conditional jump lands on falls on to it.
+#
+# a loop may sit in a loop and in a func, and a break belongs to the loop it is
+# written in rather than to the one that happens to be running. every loop is
+# closed by an endloop before the program runs, and a break or a continue with no
+# loop around it is an error before it runs as well.
+
+print "a loop with a break at the end of every turn: "
+mov i, 1
+loop one
+cmp i, 5
+jg one_out
+print i, " "
+inc i
+continue
+flag one_out
+break
+endloop
+print "\n"
+
+print "continue skips the rest of the turn: "
+mov i, 0
+loop two
+inc i
+cmp i, 7
+jg two_out
+cmp i, 3
+jl two_print        # one and two are under three, so they say nothing
+print i, " "
+flag two_print
+continue            # so three, five and seven never get here
+flag two_out
+break
+endloop
+print "\n"
+
+print "a loop in a loop, and each break is its own: "
+mov row, 0
+loop rows
+inc row
+cmp row, 3
+jg rows_out
+mov col, 0
+loop cols
+inc col
+print row, "x", col, " "
+cmp col, 3
+jg cols_out
+continue
+flag cols_out
+break               # this leaves the loop it stands in, not the outer one
+endloop
+continue
+flag rows_out
+break
+endloop
+print "\n"
+
+# either end of a loop may carry a name, and a name there is a flag as well, so a
+# jump reaches a loop from anywhere. 'jmp six' below lands on the head of the
+# body rather than in front of it
+print "a loop in a func, walked into and out of from outside: "
+jmp six
+flag after_six
+print "and the body began at ", six_at, "\n"
+
+print "a body that ends on a break of its own runs one turn: "
+mov i, 0
+loop one_turn
+inc i
+print i, " "
+break
+endloop
+print "and then it stops\n"
+
+print "the name of an endloop is a place a jump can reach: "
+mov i, 0
+loop walk
+inc i
+print i, " "
+cmp i, 3
+jl walk_again
+jmp walk_out          # so a jump can walk out of a loop from anywhere in it
+flag walk_again
+continue              # and without this the body falls through the endloop
+endloop walk_out
+print "\n"
+
+func six
+gcp six_at
+mov n, 1
+loop rows_of_six
+mov k, 1
+loop times_of_six
+mov product, n
+mul product, k
+print product, " "
+cmp k, 3
+jg times_of_six_out
+inc k
+continue
+flag times_of_six_out
+break
+endloop
+cmp n, 3
+jge six_done             # a jump to the name of an endloop walks straight out
+inc n
+continue
+endloop six_done
+jmp after_six            # a jump into a body has no call to come back to
+endfunc

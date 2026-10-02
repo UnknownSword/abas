@@ -1,0 +1,23 @@
+add 42
+sub -2
+mul 440
+div 14
+mod 2
+inc 42
+dec 42
+0b1011 is 11
+0o17 is 15
+0xff is 255
+0xf0 and 0x3c is 48
+then or 1 is 49
+then xor 0xff is 206
+not 0xf0 and 0xff is 15
+0xf0 nor 0x0f is -256
+-7 div 2 is -3
+-7 mod 2 is -1
+copy of c is 42
+text
+var zero_here is 0 and var also_zero is 0
+a copy of a is a mov, so copied is 20
+and text goes in the same way, so word holds hello
+after clv, a is a new name holding 7

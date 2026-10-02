@@ -1,0 +1,230 @@
+## cases/04_flow.abas : flag, cmp and every jump ##
+
+# a flag is a name for a place in the stream. 'flag name' saves the place the
+# program is at under that name, and a jump to the name sets the place the
+# program is at to it, which lands on the flag itself. the flag runs again as
+# the program passes it, saves the same place once more and carries on into the
+# line under it, so a block of a program is the run of lines between two flags
+# and there is nothing to open and nothing to close.
+#
+# a name may stand in front of more than one flag, and the last one in the
+# program is the one a jump goes to.
+
+mov x, 3
+mov hit, 0
+
+mov label, "je takes the jump, hit stays 0: "
+jmp t_je
+flag t_je_done
+
+mov label, "jne does not take the jump, hit becomes 2: "
+jmp t_jne
+flag t_jne_done
+
+mov label, "jl takes the jump, hit stays 0: "
+jmp t_jl
+flag t_jl_done
+
+mov label, "jg does not take the jump, hit becomes 4: "
+jmp t_jg
+flag t_jg_done
+
+mov label, "jle takes the jump, hit stays 0: "
+jmp t_jle
+flag t_jle_done
+
+mov label, "jge takes the jump on an equal compare, hit stays 0: "
+jmp t_jge
+flag t_jge_done
+
+# cmp reads text the way it reads numbers
+mov label, "cmp says that 'a' is smaller than 'b', hit stays 0: "
+jmp t_text
+flag t_text_done
+
+# a jump can go forward to a flag that is still ahead in the stream
+mov label, "jne jumped forward to t_forward_taken, hit is 0: "
+jmp t_forward
+flag t_forward_done
+
+# and it can go back to one that is already behind it
+mov label, "jmp went back to t_shared, which is written below: "
+jmp t_backward
+flag t_backward_done
+print "\n"
+
+# a loop is a block whose body jumps back to its own flag
+mov x, 5
+print "counting down: "
+jmp countdown
+flag countdown_done
+print "\n"
+
+# and this one adds every number from one to ten
+mov i, 1
+mov total, 0
+jmp sum_loop
+flag sum_loop_done
+print "one to ten is ", total, "\n"
+
+# gcp says where a command lives in the stream
+gcp at
+print "gcp said ", at, "\n"
+
+# a name may stand in front of more than one flag, and the last one in the
+# program is the one a jump goes to
+jmp t_twice
+flag t_twice_done
+
+# a jump saves nothing where a call does, so the block it goes to has no call to
+# come back to and can only carry on with a jump of its own. that is the last
+# thing this program does, and it ends from there
+jmp t_handoff
+exit 0
+
+# ------------------------------------------------------------------ the blocks
+# each one starts at a flag, leaves by a jump of its own, and hands the block
+# after it a hit to print. a flag inside the block is where a taken jump lands,
+# so a test reads the same either way it goes
+
+# x is 3, so je is taken
+flag t_je
+cmp x, 3
+je t_je_taken
+inc hit
+flag t_je_taken
+print label, hit, "\n"
+jmp t_je_done
+
+# x is 3, so jne is not
+flag t_jne
+cmp x, 3
+jne t_jne_taken
+inc hit
+inc hit
+flag t_jne_taken
+print label, hit, "\n"
+jmp t_jne_done
+
+# x is 3, so jl is taken
+flag t_jl
+cmp 1, x
+jl t_jl_taken
+inc hit
+inc hit
+inc hit
+flag t_jl_taken
+print label, hit, "\n"
+jmp t_jl_done
+
+# x is 3, so jg is not
+flag t_jg
+cmp x, 3
+jg t_jg_taken
+inc hit
+inc hit
+inc hit
+inc hit
+flag t_jg_taken
+print label, hit, "\n"
+jmp t_jg_done
+
+# jle includes the equal case, so this one is taken
+flag t_jle
+cmp x, 3
+jle t_jle_taken
+inc hit
+inc hit
+inc hit
+inc hit
+inc hit
+flag t_jle_taken
+print label, hit, "\n"
+jmp t_jle_done
+
+# and so does jge
+flag t_jge
+cmp x, 3
+jge t_jge_taken
+inc hit
+inc hit
+inc hit
+inc hit
+inc hit
+inc hit
+flag t_jge_taken
+print label, hit, "\n"
+jmp t_jge_done
+
+# text compares the same way
+flag t_text
+cmp "a", "b"
+jl t_text_taken
+inc hit
+flag t_text_taken
+print label, hit, "\n"
+jmp t_text_done
+
+# the forward jump goes to a flag that is still to come
+flag t_forward
+cmp x, 3
+jne t_forward_taken
+jmp t_forward_not_taken
+flag t_forward_not_taken
+inc hit
+flag t_forward_taken
+print label, hit, "\n"
+jmp t_forward_done
+
+# the backward jump lands on a flag that is further down, not on the one it
+# named, and that is the whole of the trick: the code under t_backward is the
+# body of the loop and t_shared is its first line
+flag t_backward
+jmp t_shared
+flag t_shared
+print label
+dec x
+cmp x, 0
+je t_backward_done
+jmp t_backward
+
+# counting down is the same shape written the other way round, with the test at
+# the top of the block and the jump back under it
+flag countdown
+cmp x, 0
+jle countdown_done
+print x
+print " "
+dec x
+jmp countdown
+
+# this loop has no condition to speak of: it ends when a jump under it says so
+flag sum_loop
+cmp i, 11
+je sum_loop_done
+add total, i
+inc i
+jmp sum_loop
+
+# the first flag of this name is dead, because the last one is where t_twice
+# lands, and a jump that falls off a block has to be a jump of its own
+flag t_twice
+print "the first flag named t_twice is dead: "
+print "\n"
+jmp t_twice_done
+flag t_twice
+print "the last flag named t_twice is ", "\n"
+print "the one a jump reaches"
+print "\n"
+jmp t_twice_done
+
+# the last block of the program. it says something and then hands the program
+# over to another block, which is all a jmp can do
+flag t_handoff
+print "and t_handoff handed the program to t_handed: "
+print "\n"
+jmp t_handed
+flag t_handed
+print "which is where it ended"
+print "\n"
+exit 0

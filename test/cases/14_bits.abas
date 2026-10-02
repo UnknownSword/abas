@@ -1,0 +1,126 @@
+## cases/14_bits.abas : lsh, rsh and pow ##
+
+# lsh, rsh and pow each take a first place and an amount, and each writes the
+# answer back into that first place. a first place is a name or a slot on the
+# stack, and an amount is a value like any other, so a number, a name or a
+# character may be written there
+
+mov n, 1
+lsh n, 10
+print "1 lsh 10 is ", n, "\n"
+rsh n, 3
+print "and rsh 3 takes it back to ", n, "\n"
+
+# a shift moves bits, so a shift of a power of two is the same number as a mul or
+# a div by it, and doing it with bits is the point of the two commands
+mov n, 0b1100
+lsh n, 4
+print "0b1100 lsh 4 is ", n, ", and 0b1100 mul 16 is 192\n"
+rsh n, 4
+print "rsh 4 is back to ", n, "\n"
+
+# a shift is a shift of 64 bits, so the amount stops at 63. take the hash off
+# either line to watch abas say so
+mov n, 1
+lsh n, 62
+print "1 lsh 62 is ", n, ", which is 2 to the 62nd\n"
+# lsh n, 64
+# lsh n, -1
+
+# rsh fills with zeros and not with the sign, since it works on the 64 bits of a
+# word as they stand, the same ground and, or and xor work on. so rsh is not a
+# way of halving a number that may be negative, and div is that
+mov n, -8
+rsh n, 1
+print "-8 rsh 1 is ", n, " and not -4\n"
+mov n, -8
+div n, 2
+print "-8 div 2 is ", n, "\n"
+
+# the amount may be a name, which is what makes a shift worth having over a mul
+mov n, 0xff
+mov amount, 4
+and n, 0x0f
+lsh n, amount
+print "the low byte of 0xff, lsh by a name, is ", n, "\n"
+
+# and the first place may be a slot on the stack, so the answer lands in the slot
+ssp 0
+push 2
+mov amount, 10
+pow $0, amount
+print "the word at slot 0 after pow $0, 10 is ", $0, "\n"
+lsh $0, 1
+print "and after lsh $0, 1 it is ", $0, "\n"
+rsh $0, 2
+print "and after rsh $0, 2 it is ", $0, "\n"
+cls
+
+# pow is the one of the three a shift cannot do, since a shift only ever
+# multiplies by two. it squares the base and halves the exponent as it goes, so
+# it costs a multiply for every bit of the exponent rather than one for every
+# turn of it. nothing here says how long it took, the work is just not there
+mov n, 2
+pow n, 10
+print "2 to the 10th is ", n, "\n"
+pow n, 3
+print "and again, so 1024 to the 3rd, which is 2 to the 30th, ", n, "\n"
+
+
+mov n, 7
+pow n, 3
+print "7 to the 3rd is ", n, "\n"
+pow n, 3
+print "7 to the 9th is ", n, "\n"
+
+# ten to the thousandth has a thousand digits in it and a word holds nineteen, so
+# the point of the squaring is that it is ten multiplies and not a thousand
+mov n, 10
+pow n, 1000
+print "10 to the 1000th is ", n, ", which has gone round\n"
+
+# a negative base keeps its sign to an odd power and loses it to an even one, and
+# the sign bit of a word sees to that on its own
+mov n, -2
+pow n, 5
+print "-2 to the 5th is ", n, "\n"
+pow n, 5
+print "-2 to the 25th is ", n, "\n"
+pow n, 2
+print "-2 to the 50th is ", n, "\n"
+
+# anything to the power of zero is one, and a negative exponent is an error
+# rather than a fraction, since there is no way to write one here
+mov n, 7
+pow n, 0
+print "7 to the power of nothing is ", n, "\n"
+mov n, 0
+pow n, 0
+print "and so is 0, which is 1\n"
+# pow n, -1
+
+# a power too large for a word is not a mistake, and goes round the way a mul
+# does: the answer is the true one with as many 2^64s taken off the top as it
+# takes to make it fit
+mov n, 2
+pow n, 62
+print "2 to the 62nd is ", n, ", the largest that fits\n"
+mov n, 2
+pow n, 63
+print "2 to the 63rd is ", n, ", and reaches a word as a negative number\n"
+mov n, 2
+pow n, 64
+print "2 to the 64th is ", n, ", a whole 2^64 and so nothing left\n"
+mov n, 3
+pow n, 40
+print "3 to the 40th is ", n, ", which is a rounding and not a zero\n"
+mov n, -2
+pow n, 63
+print "-2 to the 63rd is ", n, ", the same bits as 2 to the 63rd\n"
+
+# and every one of the three says so rather than stopping when it is handed text
+# or the wrong number of arguments
+# lsh n, "four"
+# rsh n, 3, 4
+# pow n
+exit 0

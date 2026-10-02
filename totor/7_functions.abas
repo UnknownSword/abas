@@ -1,0 +1,145 @@
+## totor/7_functions.abas : func, endfunc, call and ret ##
+# a func is a block of commands and a name of its own:
+#
+#   func name          the body of the func is every command under this line
+#     ...
+#   endfunc              the body ends here
+#
+# every func has to be closed by an endfunc, so the body of a func is exactly what
+# is between the two. a func with no endfunc, and an endfunc with no func above it,
+# are both errors that abas finds before it runs a single command, which is why
+# a program can be checked without running it:
+#
+#     ./bin/main -c totor/7_functions.abas
+#
+# a func may be written inside another func, and then the endfunc that closes it
+# is the one at the same level, not the next one along. the commands that stand
+# outside every func are the main code, and those run from the top down. a flag
+# is not a func, so a flag opens nothing, see 6_flow
+#
+# a call enters a func and saves the place it was made, so that a ret or an
+# endfunc can come back to it. a jmp enters one too, and saves nothing, which is
+# why a block of the main code hands control with a jump and carries on after
+
+# a ret gives back whatever it is written with, and the caller takes those words
+# off with pop. an endfunc gives nothing back at all, so the caller pops nothing.
+# both of them come back to the line under the call
+mov n, 21
+call double
+pop result
+print "double(21) is "
+print result
+print "\n"
+
+# a ret can push as many values as it is written with, and they go on in the
+# order they are written, so the caller pops the last one first
+call three_things
+pop last, middle, first
+print "three things gave back "
+print first, " ", middle, " ", last
+print "\n"
+
+# and a func that ends on an endfunc has nothing to say, so the caller pops
+# nothing and says nothing about it
+call say_hello
+print "\n"
+
+# a func can change the caller's names, because names belong to the whole
+# program and there is no block scope
+mov n, 10
+call bump
+print "after bump, n is "
+print n
+print "\n"
+
+# a func can call another one
+mov n, 5
+call wrap
+pop result
+print "wrap(5) is "
+print result
+print "\n"
+
+# a name may stand in front of more than one func, and a call goes to the last
+# one in the program
+mov n, 6
+call version
+pop result
+print "the last func named version is number "
+print result
+print "\n"
+
+# a func can call itself. since names are global, recursion has to keep its own
+# values on the stack and give them back before it returns
+mov n, 6
+call fact
+pop result
+print "fact(6) is "
+print result
+print "\n"
+
+# nothing limits how deep a func may call itself. a program that calls itself
+# for ever runs for ever, and the way to catch that one is to tell abas how
+# deep to let it go
+#
+#     ./bin/main -d 1000 totor/7_functions.abas
+#     ./bin/main --function-depth 1000 totor/7_functions.abas
+
+exit 0
+
+# returns n * 2
+func double
+mov out, n
+add out, out
+ret out
+endfunc
+
+# adds one to n and gives nothing back, so the caller pops nothing
+func bump
+inc n
+endfunc
+
+# calls double and gives its value back
+func wrap
+call double
+pop w
+ret w
+endfunc
+
+# three values in one ret, they land on the stack in this order
+func three_things
+ret 1, 2, 3
+endfunc
+
+# a func with nothing to do but say something. it says it, ends on an endfunc
+# rather than a ret, and the caller pops nothing at all
+func say_hello
+print "  a func that says hello and gives nothing back"
+endfunc
+
+# a func can call itself, and each level keeps its own n on the stack while the
+# level under it runs. the base case is a flag inside the func, so it is part of
+# the body and the endfunc at the bottom closes the one func they are all in
+func fact
+cmp n, 1
+jle fact_base
+push n                    # our own n, safe on the stack while n moves on
+mov m, n
+dec m
+mov n, m
+call fact
+pop f, n                 # the value it worked out, and our own n again
+mul f, n
+ret f
+flag fact_base
+ret 1
+endfunc
+
+# the first func of this name is not the one a call goes to, the last one is
+func version
+ret 1
+endfunc
+
+func version
+ret 2
+endfunc

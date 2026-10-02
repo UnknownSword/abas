@@ -1,0 +1,216 @@
+## totor/4_arithmetic.abas : doing sums on names ##
+# every command here reads the name in the first place and writes the answer
+# back into that same name. the second place is where the other value comes
+# from, and it can be a number, a character, a name or text
+mov n, 100
+
+print "n starts at ", n, "\n"
+
+# add, sub, mul, div and mod are the five you will use most
+add n, 23
+print "add 23 makes it ", n, "\n"
+sub n, 23
+print "sub 23 puts it back to ", n, "\n"
+
+mul n, 2
+print "mul 2 makes it ", n, "\n"
+div n, 3
+print "div 3 makes it ", n, "\n"
+mod n, 7
+print "mod 7 makes it ", n, "\n"
+
+# inc and dec change a value by one. they take as many arguments as you give
+# them and change every one of them, so three names are one line rather than
+# three
+inc n
+inc n
+dec n
+print "two incs and a dec leave it at ", n, "\n"
+
+mov a, 10
+mov b, 20
+mov c, 30
+inc a, b, c              # all three at once
+print "inc a, b, c makes them ", a, " ", b, " ", c
+print "\n"
+dec a, b, c
+print "dec a, b, c puts them back to ", a, " ", b, " ", c
+print "\n"
+
+# the same name may be in the list twice, and a first place may also be a
+# pointer, which is a slot on the stack. so one inc can move a name and a slot
+# together. 'grow 1' makes room for one word on the stack, and a slot that is
+# not on the stack is an error, see 5_stack
+mov slot, 0
+grow 1
+inc slot, $0
+print "inc slot, $0 leaves slot at ", slot, " and the word at 0 at "
+print $0
+print "\n"
+cls
+
+# a first place can be any name, a pointer or a stack slot, see 5_stack. that
+# means a sum can be written either way round and both are the same
+mov a, 6
+mov b, 7
+mov sum, a
+add sum, b
+print "6 + 7 is ", sum, "\n"
+
+# sub works the way a mathematician expects, so a - b is a minus b
+mov a, 6
+mov b, 7
+mov diff, a
+sub diff, b
+print "6 - 7 is ", diff, "\n"
+
+# div drops what is left over and mod keeps it, so the two together divide
+# exactly. div throws the fraction away towards zero, so -7 div 2 is -3 and not
+# -4, and mod takes the sign of the number it was given, so -7 mod 2 is -1
+mov a, -7
+mov b, 2
+mov whole, a
+div whole, b
+mov rest, a
+mod rest, b
+print "-7 div 2 is ", whole, " and -7 mod 2 is ", rest
+print "\n"
+
+# div by zero and mod by zero are errors, and so is any command that reaches
+# for a name that holds text
+# mov zero, 0
+# div n, zero
+
+# the bit wise commands work on the whole word, which is how you get at one
+# byte of a number. bit and, or, xor and nor take two values and not takes one
+mov bits, 0b1100
+print "0b1100 is ", bits, "\n"
+and bits, 0b1010
+print "and 0b1010 makes it ", bits, "\n"
+or bits, 0b0001
+print "or 0b0001 makes it ", bits, "\n"
+xor bits, 0b1111
+print "xor 0b1111 makes it ", bits, "\n"
+
+mov bits, 0b1100
+nor bits, 0b1010
+print "0b1100 nor 0b1010 makes it ", bits, "\n"
+
+mov bits, 0b1100
+not bits
+print "not 0b1100 makes it ", bits, "\n"
+# not turns every bit of the word over, so the answer is negative. and it with
+# a mask to keep only the bits you care about
+mov bits, 0b1100
+not bits
+and bits, 0xff
+print "not 0b1100 and 0xff makes it ", bits, "\n"
+
+# a shift is a mul or a div by a power of two, and lsh and rsh are that without
+# the multiply. a shift moves bits: lsh moves them up, rsh moves them down, and
+# the zeros come in at the end that is emptied
+mov bits, 0b1100
+mul bits, 16
+print "0b1100 times 16 is ", bits, "\n"
+div bits, 16
+print "and back to ", bits, "\n"
+
+mov bits, 0b1100
+lsh bits, 4
+print "lsh 4 makes it ", bits, ", which is 0b11000000\n"
+rsh bits, 4
+print "rsh 4 takes it back to ", bits, "\n"
+
+# a shift is a shift of 64 bits, so the amount is a number of bits and stops at
+# 63. shifting by 64 would move every bit out of the word, so it is a mistake
+# rather than a zero
+mov bits, 1
+lsh bits, 62
+print "1 lsh 62 is ", bits, "\n"
+# lsh bits, 64
+# lsh bits, -1
+
+# rsh fills with zeros and not with the sign, because it is the same kind of
+# thing as and, or and xor and it works on the 64 bits of a word as they stand.
+# so rsh is not a way of halving a number that may be negative, and div is that
+mov bits, -8
+rsh bits, 1
+print "-8 rsh 1 is ", bits, " and not -4, since the zeros come in\n"
+mov bits, -8
+div bits, 2
+print "while -8 div 2 is ", bits, "\n"
+
+# the one place a shift is worth writing over a mul is when the amount is not a
+# number that was worked out beforehand, and this is what says so
+mov bits, 0xff
+and bits, 0x0f
+print "0xff and 0x0f is ", bits, ", the low byte of a word\n"
+lsh bits, 4
+print "and lsh 4 makes it ", bits, ", the other nibble moved up\n"
+
+# pow is the one of the three a shift cannot do, since a shift only ever
+# multiplies by two. it squares the base and halves the exponent as it goes, so
+# it costs a multiply for every bit of the exponent rather than one for every
+# turn of it: a thousandth power is ten multiplies rather than a thousand
+mov n, 2
+pow n, 10
+print "2 to the 10th is ", n, "\n"
+pow n, 3
+print "and pow n, 3 again makes it 1024 to the 3rd, which is\n"
+print "2 to the 30th at ", n, "\n"
+
+mov n, 7
+pow n, 3
+print "7 to the 3rd is ", n, "\n"
+pow n, 3
+print "7 to the 9th is ", n, "\n"
+
+# the amount is a value like any other, so it can be a name that was worked out
+# while the program ran
+mov base, 3
+mov k, 20
+mov n, base
+pow n, k
+print "3 to the 20th is ", n, "\n"
+
+# the first place is a first place like any other, so a slot on the stack can be
+# worked on too, and the answer lands in that slot
+ssp 0
+push 2
+mov k, 8
+pow $0, k
+print "the word at slot 0 after pow $0, 8 is ", $0, "\n"
+cls
+
+# a negative base with an odd exponent keeps its sign and with an even one loses
+# it, and the sign bit of a word takes care of that on its own
+mov n, -2
+pow n, 5
+print "-2 to the 5th is ", n, "\n"
+pow n, 5
+print "-2 to the 25th is ", n, "\n"
+
+# anything to the power of zero is one, zero included, and a negative exponent
+# is an error rather than a fraction, since there is no way to write one here
+mov n, 0
+pow n, 0
+print "0 to the power of nothing is ", n, "\n"
+# pow n, -1
+
+# a word holds 19 decimal digits and no more, so a power that is too big for one
+# goes round the same way a mul does rather than stopping: the answer is the true
+# one with as many 2^64s taken off the top as it takes to make it fit
+mov n, 2
+pow n, 63
+print "2 to the 63rd is ", n, ", the largest size a word reaches\n"
+mov n, 3
+pow n, 40
+print "3 to the 40th is ", n, " and has gone round\n"
+mov n, 2
+pow n, 64
+print "2 to the 64th is ", n, ", which is a whole 2^64 and so nothing left\n"
+mov n, 10
+pow n, 100
+print "10 to the 100th is ", n, ", and a hundred zeros at the end leaves nothing\n"
+
+exit 0

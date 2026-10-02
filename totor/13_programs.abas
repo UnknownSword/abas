@@ -1,0 +1,168 @@
+## totor/13_programs.abas : a few whole programs, start to finish ##
+# every lesson so far showed one thing. this one is three programs that use only
+# what the lessons before it taught, and it has the shape most abas code has:
+# the work at the top of the file, the functions below it, and a name per
+# function for its own scratch.
+#
+# run it with
+#
+#     ./bin/main -I . totor/13_programs.abas
+#
+# one rule to keep in mind while reading it. a flag is a place in the stream, so
+# a block that ends on a jump cannot fall into whatever stands below it. every
+# block below therefore ends on an unconditional jump, a ret or an endfunc, and
+# every jump names a flag, so nothing depends on where the lines happen to sit
+
+include "lib/printnum.abas"
+
+# ---------------------------------------------------------------- one: counting
+# prints a countdown from a number down to one, then says how many steps that
+# was. a loop is a func whose body jumps back to its own flag
+
+mov n, 10
+call count_down
+pop steps
+print "that was "
+print steps
+print " steps"
+print "\n"
+
+# ------------------------------------------------------------------ two: factorial
+# the same factorial as 7_functions, but it prints every step of the way down
+
+mov n, 5
+call fact_trace
+pop total
+print "5 factorial is "
+print total
+print "\n"
+
+# -------------------------------------------------------------- three: fizzbuzz
+# the numbers from n down to one, where a multiple of three says fizz, a
+# multiple of five says buzz, and both say fizzbuzz. that is two questions per
+# number, so the body is a run of blocks and each one is reached by a jump.
+# fizzbuzz has nothing to give back, so it ends on an endfunc and the caller pops
+# nothing
+
+mov n, 20
+call fizzbuzz
+
+print "\n"
+print "and a program ends with exit, the number is the code the shell gets"
+print "\n"
+
+exit 0
+
+# ------------------------------------------------------------------ the funcs
+
+# prints n, n-1, ... 1 with a space behind each, and gives the count back
+func count_down
+mov cd_i, 0
+jmp cd_check
+flag cd_loop
+print n
+print " "
+dec n
+inc cd_i
+jmp cd_check
+flag cd_check
+cmp n, 0
+jle cd_done
+jmp cd_loop
+flag cd_done
+ret cd_i
+endfunc
+
+# n factorial, printing each step on the way down. it keeps its own numbers on
+# the stack, one word per level, and gives them back before it returns
+func fact_trace
+cmp n, 1
+jle ft_base
+print n
+print "! = "
+mov pn, n
+call printnum
+print "\n"
+push n                    # this level keeps its own number here
+mov ft_m, n
+dec ft_m                   # the level under us works on one less
+mov n, ft_m
+call fact_trace            # the stack holds our number while that runs
+pop ft_r, n                # the value it gave back, and our own number again
+mul ft_r, n
+ret ft_r
+flag ft_base
+print "1! = 1"
+print "\n"
+ret 1
+endfunc
+
+# the numbers from n down to one, with the words mixed in. a number can be a
+# multiple of three, of five, of both, or of neither, so it works out which
+# first and then prints the word that goes with the answer
+func fizzbuzz
+cmp n, 0
+jle fb_done
+jmp fb_turn
+
+# is it a multiple of three? fb_is3 is left at 1 when it is and 0 when it is not
+flag fb_turn
+mov fb_three, n
+mov fb_tmp, 3
+mod fb_three, fb_tmp
+mov fb_is3, 0
+cmp fb_three, 0
+je fb_three_yes
+mov fb_is3, 1
+jmp fb_three_yes
+flag fb_three_yes
+
+# the same question about five
+mov fb_five, n
+mov fb_tmp, 5
+mod fb_five, fb_tmp
+mov fb_is5, 0
+cmp fb_five, 0
+je fb_five_yes
+mov fb_is5, 1
+jmp fb_five_yes
+flag fb_five_yes
+jmp fb_decide
+
+# now both answers are known, so the word is picked out of them
+flag fb_decide
+cmp fb_is3, 0
+je fb_no3
+cmp fb_is5, 0
+je fb_fizzbuzz
+print "fizz "
+jmp fb_next
+
+# both, so both words
+flag fb_fizzbuzz
+print "fizzbuzz "
+jmp fb_next
+
+# three is out of the question, so it is fizzbuzz or buzz
+flag fb_no3
+cmp fb_is5, 0
+je fb_number
+print "buzz "
+jmp fb_next
+
+# neither, so the number itself is what is printed
+flag fb_number
+mov pn, n
+call printnum
+print " "
+jmp fb_next
+
+# one number is done, on to the next one
+flag fb_next
+dec n
+cmp n, 0
+jle fb_done
+jmp fb_turn
+
+flag fb_done
+endfunc

@@ -1,0 +1,92 @@
+## cases/08_clear.abas : var, and the four commands that clear ##
+
+# var writes the names of a piece of work down before they are worked on, and
+# gives every one of them 0. nothing needs it, any command that writes to a name
+# makes it, so every name here could have been made by a mov instead and the
+# program would run the same
+var n, spare
+mov n, 5
+print "mov n, 5 makes n 5, and var spare is ", spare, "\n"
+
+# a value goes into a name with a mov, and that is the same whether the value is a
+# number, a name or a piece of text
+var copy_of_n, word
+mov copy_of_n, n
+mov word, "abas"
+print "mov copy_of_n, n makes it ", copy_of_n, ", and mov word holds ", word, "\n"
+
+# cls empties the stack in one word, the same as 'ssp 0'
+push 1
+push 2
+push "three"
+cls
+gsp left
+print "after cls the stack holds ", left, " word(s)", "\n"
+
+# a function that used the stack gives its scratch back before it comes back,
+# and cls is the shortest way of doing that
+call scratch
+gsp left
+print "after a function that cleared its own scratch ", left
+print "\n"
+
+# clv throws every name away, so the names above have to be made again before
+# they can be read. take the hash off the line below to see abas stop on it
+clv
+# print n
+mov n, 6
+print "after clv, n is a new name holding ", n, "\n"
+
+# a jump to a flag reaches the last flag of that name in the stream, and it does
+# so from anywhere in the program, forwards or backwards
+print "a jump to a flag before clf: "
+jmp kept
+flag kept
+print "  and it landed", "\n"
+jmp kept_lands
+flag kept_lands
+
+# clf can be given the name of just one thing to throw away, and every other name
+# stays. a name given to it is a name of a func or of a flag as far as it is
+# concerned, so it goes out of both lists either way. take the hash off the line
+# under the print to watch abas say that kept is not a flag and not a func
+clf kept
+print "after clf kept: "
+# jmp kept
+print "  the jump above is the one to unhash", "\n"
+
+# clf with nothing after it throws away every func name and every flag name, and
+# the program carries on as before. nothing can reach a func or a flag any more
+# though, so a call or a jump to either stops with the name not being a flag and
+# not a func. the names are read out of the stream before the program runs, so a
+# flag line run after the clf does not bring a name back: the stream is what says
+# what the names are, and the clf has said there are none of them left
+clf
+print "after clf: "
+# call scratch
+# jmp kept
+print "  the call and the jump above are the ones to unhash", "\n"
+
+mov n, 8
+print "after clf, n still holds ", n, "\n"
+
+# clear is cls, clv and clf in one word. it takes the stack, the names, and the
+# names of the funcs and of the flags, and it does not touch the place the
+# program is at, so the program carries on from the line under it. given the
+# name of one thing it throws away that one out of all three lists
+push "thrown away"
+mov n, 7
+flag thrown_away
+clear
+gsp left
+print "after clear the stack holds ", left, " word(s)", "\n"
+exit 0
+
+# pushes three words and clears them again, so the caller finds the stack as it
+# was, and gives nothing back with a bare endfunc
+func scratch
+push 1
+push 2
+push 3
+cls
+endfunc

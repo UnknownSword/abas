@@ -1,0 +1,10 @@
+one, counting to three: 1 2 3 
+and n stopped at 3
+  the first block was jumped to, and jumped out of
+two, the line under a block is only reached by name: 
+  the second block was jumped to, and jumped out of
+four, the last flag of the name is the one the jump reached, and it says: 
+  a name with two flags means the last one
+  a call went to the last func of the name, which returns 2
+and a jump to a func runs its body, and the body leaves by a jump:   the body of walk ran
+  the body of walk ran and jumped out, and this is where it landed

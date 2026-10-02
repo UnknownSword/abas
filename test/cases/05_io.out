@@ -1,0 +1,14 @@
+hi
+A
+!
+a tab ->	|end
+a quote ->"|end
+a backslash ->\|end
+one backslash n stays text: \n
+the code of \0 is 0
+
+
+this line goes to the error output
+the answer is 42
+
+type one character: q

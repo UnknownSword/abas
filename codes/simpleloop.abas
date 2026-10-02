@@ -1,0 +1,14 @@
+mov i, 0
+
+loop
+cmp i, 10
+jl a
+break
+flag a
+
+print i, " -> Hello\n"
+
+inc i
+continue
+endloop
+

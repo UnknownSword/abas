@@ -1,0 +1,99 @@
+## totor/12_stdlib.abas : reading a line, and how a library is put together ##
+
+include "lib/readline.abas", "lib/printnum.abas"
+
+# readline reads characters until a newline, keeps them on the stack one byte per
+# word, and gives back how many there were with a ret. the first byte lands in
+# the slot that was on top when it was called, so gsp before the call is the
+# number of that slot.
+#
+# type a line and press enter, abas waits for you. then read it three ways
+
+gsp base
+call readline
+pop len
+print "you typed "
+print len
+print " byte(s)"
+print "\n"
+
+# the bytes are still on the stack, the first one is in slot base
+mov first, $base
+print "the first byte has the code "
+print first
+print " and the last one has the code "
+mov last, base
+add last, len
+sub last, 1
+mov lastc, $last
+print lastc
+print "\n"
+
+# the last byte is on the top, so popping walks the line from the end. the count
+# is in i, so the loop is a function that takes one byte off until i runs out
+mov i, len
+call show_bytes
+
+# what is left of the stack is scratch, ssp hands it back
+ssp 0
+
+# how a library function is written down
+#
+# 1. every name it uses for its own work starts with its own prefix, so two
+#    functions of the library cannot tread on each other's scratch. the short
+#    names are the ones a caller fills in first: putchar reads pc, printnum
+#    reads pn. a library function that wants to say something extra does it in a
+#    name of its own, like strlen and readline do with sl_at and the base
+# 2. it gives the stack back before it returns, with ssp to the size gsp found
+#    on the way in, or with grow and a negative number. the one stack belongs to
+#    the program rather than to the function that is running, so a function that
+#    leaves its scratch behind makes the caller's stack wrong. readline is the
+#    one exception here, and it is not really one: what it leaves is the line,
+#    which is what the caller called it for, and the caller drops it with ssp
+#    when it is done
+# 3. it ends on endfunc, which is the only thing that closes a func. an endfunc
+#    gives nothing back, so the caller pops nothing at all and a func that has
+#    nothing to say is written that way. a func that does have something to say
+#    ends its early paths on a ret, which pushes what the caller pops
+
+# the digits of a number are built with a loop, one byte per word, and the first
+# digit pushed is the last one printed. that loop is the whole of what printnum
+# does, and it is why a program can print a number at all: there is no command
+# that turns a number into text
+mov pn, 1000
+call printnum
+mov pn, 987654321
+call printnum
+print "\n"
+
+# a number that is negative prints with a minus in front of it, because zero
+# minus a negative number is its size
+mov pn, 0
+sub pn, 1
+call printnum
+print "\n"
+
+# putchar and printnum together are enough to say anything at all. a program
+# that has to build a whole sentence calls both once per piece, and 13_programs
+# does exactly that
+
+exit 0
+
+# pops i bytes off the top of the stack and puts each one out, with its code
+# behind it. i says how many, and it ends on a bare endfunc because it has nothing
+# else to say. a loop is a block whose body jumps back to its own flag, so this
+# one tests i, takes one byte, prints it, and jumps back
+func show_bytes
+flag show_bytes_turn
+cmp i, 0
+jle show_bytes_done
+pop b
+put b
+print ":"
+print b
+print " "
+dec i
+jmp show_bytes_turn
+flag show_bytes_done
+print "\n"
+endfunc

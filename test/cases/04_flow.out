@@ -1,0 +1,16 @@
+je takes the jump, hit stays 0: 0
+jne does not take the jump, hit becomes 2: 2
+jl takes the jump, hit stays 0: 2
+jg does not take the jump, hit becomes 4: 6
+jle takes the jump, hit stays 0: 6
+jge takes the jump on an equal compare, hit stays 0: 6
+cmp says that 'a' is smaller than 'b', hit stays 0: 6
+jne jumped forward to t_forward_taken, hit is 0: 7
+jmp went back to t_shared, which is written below: jmp went back to t_shared, which is written below: jmp went back to t_shared, which is written below: 
+counting down: 5 4 3 2 1 
+one to ten is 55
+gcp said 40
+the last flag named t_twice is 
+the one a jump reaches
+and t_handoff handed the program to t_handed: 
+which is where it ended

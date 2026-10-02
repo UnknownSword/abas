@@ -1,0 +1,120 @@
+# the loop commands: loop, endloop, continue and break
+#
+# a loop is a flag and a jump written out under a name of their own. 'loop' is
+# the flag a continue lands back on and 'endloop' is the place a break walks out
+# to, so neither of them does anything when it runs and the body is simply what
+# is between the two. neither takes a test of its own, so the test is still a cmp
+# and a jump to a flag inside the body, and the flag falls on to the break.
+
+print "-- one to five --", "\n"
+mov i, 1
+loop
+cmp i, 5
+jg one_more           # over five is over, and the break below ends the loop
+print i, " "
+inc i
+continue
+flag one_more
+break
+endloop
+print "\n"
+
+print "-- continue skips the rest of the turn --", "\n"
+mov i, 0
+loop odds
+inc i
+cmp i, 7
+jg odds_more
+cmp i, 3
+jl odds_odd           # the ones under 3 say nothing
+print i, " "
+flag odds_odd
+continue              # so the even ones are never printed
+flag odds_more
+break
+endloop
+print "\n"
+
+print "-- a loop in a loop, and a break belongs to the one it is written in --", "\n"
+mov row, 0
+loop rows
+inc row
+cmp row, 3
+jg rows_more
+mov col, 0
+loop cols
+inc col
+print row, "x", col, " "
+cmp col, 3
+jg cols_more
+continue
+flag cols_more
+break                 # this one leaves the loop it is written in, not the outer
+endloop
+continue
+flag rows_more
+break
+endloop
+print "\n"
+
+# either end of a loop may carry a name, and a name there is a flag as well. so a
+# jump reaches a loop from anywhere in the program, and 'jmp table' below lands
+# on the head of the body rather than in front of it
+print "-- a loop in a func, walked into and out of from outside --", "\n"
+jmp table
+flag after_table
+print "back out of the table, which began at ", table_at, "\n"
+
+# ------------------------------------------------------------------- rpush
+print "-- rpush and rpop are push and pop the other way round --", "\n"
+mov a, 1
+mov b, 2
+mov c, 3
+
+rpush a, b, c         # a goes on last, so it is the top of the stack
+pop first, second, third
+print "rpush a, b, c  then pop  first, second, third gives ", first, " ", second, " ", third, "\n"
+
+push a, b, c          # c goes on last, so it is the top of the stack
+rpop first, second, third
+print "push  a, b, c  then rpop first, second, third gives ", first, " ", second, " ", third, "\n"
+
+# ------------------------------------------------------------------- print
+# print writes every argument one after another, and a line end is a value like
+# any other, so one print can say a whole sentence
+print "first string <", 12, "> another string", "\n"
+print "\n"
+# a character is a number, so the two ways of writing a line end are not the same
+# thing: the first writes the line end, the second writes the number 10
+print '\n'
+print "\n"
+
+exit 0
+
+# prints the multiplication table of one to three. a jump enters a body rather
+# than a call, so the body leaves with a jump of its own and never reaches the
+# endfunc, and the name it writes is a name like any other, so the caller reads
+# it as it likes
+func table
+gcp table_at
+mov n, 1
+loop multiply
+mov k, 1
+loop times
+mov product, n
+mul product, k
+print product, " = ", n, " x ", k, "\n"
+cmp k, 3
+jg times_more
+inc k
+continue
+flag times_more
+break
+endloop
+cmp n, 3
+jge table_done      # a jump to the name of an endloop walks straight out of it
+inc n
+continue
+endloop table_done
+jmp after_table
+endfunc

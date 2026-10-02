@@ -1,0 +1,17 @@
+## cases/01_hello.abas : the smallest program there is ##
+
+# a one line comment
+mov greeting, "hello "
+mov who, "world"
+
+print greeting          # a comment at the end of a line is fine too
+print who
+print "\n"
+
+# this multi line comment holds two
+# lines and ends with a double hash: ##
+
+print "abas says: "
+put '!'
+print "\n"
+exit 0

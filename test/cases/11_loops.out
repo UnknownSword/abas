@@ -1,0 +1,6 @@
+a loop with a break at the end of every turn: 1 2 3 4 5 
+continue skips the rest of the turn: 3 4 5 6 7 
+a loop in a loop, and each break is its own: 1x1 1x2 1x3 1x4 2x1 2x2 2x3 2x4 3x1 3x2 3x3 3x4 
+a loop in a func, walked into and out of from outside: 1 2 3 4 2 4 6 8 3 6 9 12 and the body began at 73
+a body that ends on a break of its own runs one turn: 1 and then it stops
+the name of an endloop is a place a jump can reach: 1 2 3 

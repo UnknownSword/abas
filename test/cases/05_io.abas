@@ -1,0 +1,49 @@
+## cases/05_io.abas : put, err, print and the way text is written in abas ##
+
+mov c, 0
+mov word, 0
+
+# put writes the lowest byte of a value, like a character
+put 'h'
+put 'i'
+print "\n"
+
+# a character literal is the code of one character
+mov c, 'A'
+put c
+print "\n"
+
+mov c, 'a'
+mov c, 32
+add c, 1
+put c
+print "\n"
+
+# text escapes
+print "a tab ->\t|end\n"
+print "a quote ->\"|end\n"
+print "a backslash ->\\|end\n"
+print "one backslash n stays text: \\n\n"
+
+# \0 is a value like any other, a character literal gives its code
+mov c, '\0'
+print "the code of \\0 is ", c, "\n"
+
+# two character names for the codes you use the most
+mov word, 10
+put word
+print "\n"
+
+# err writes the same way to the error output
+err "this line goes to the error output\n"
+
+# print writes a whole number, put writes one character
+print "the answer is ", 42, "\n"
+print "\n"
+
+# get reads one character back
+print "type one character: "
+get c
+put c
+print "\n"
+exit 0

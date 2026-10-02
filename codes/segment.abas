@@ -1,0 +1,321 @@
+## 
+#	+=======================================+
+#	|   its a basic abas segment tree code	|
+#	|   it holds segment sum				|
+#	+=======================================+
+##
+
+func getnum
+	# save stack pointer
+	gsp sp
+	# its a final value that store in index sp
+	push 0
+	mov __pos, 1
+	
+	loop
+		get __c
+		
+		cmp __c, '-'
+		jne __tmp
+		
+		not __pos
+		continue
+		
+		flag __tmp
+		je __will_braek
+		cmp __c, '\0'
+		je __will_braek
+		cmp __c, '\n'
+		je __will_braek
+		cmp __c, ' '
+		je __will_braek
+		cmp __c, '\t'
+		je __will_braek
+		
+		sub __c, 48
+		mul $sp, 10
+		add $sp, __c
+		continue
+		flag __will_braek
+	endloop
+	
+	cmp __pos, 1
+	je __its_pos
+	mul $sp, -1
+	flag __its_pos
+	
+	inc sp
+	ssp sp
+	# set the stack pointer back
+endfunc
+
+func getarray
+	pop __n
+	push __n
+	mov __i, 0
+	
+	loop
+		cmp __i, __n
+		jge __endloop
+		
+		call getnum
+		
+		inc __i
+		continue
+		flag __endloop
+		break
+	endloop
+	
+endfunc
+
+call getnum
+pop input_n
+push input_n
+gsp input_arr
+call getarray
+
+mov seg_size, input_n
+add seg_size, 23
+lsh seg_size, 2
+
+gsp seg_data
+grow seg_size
+
+# ======= build ========
+# l, r, root
+func build
+	rpop l, r, root
+
+	# check if leaf
+	# if l + 1 >= r
+	#	return
+		mov __tmp, l
+		inc __tmp
+		
+		cmp __tmp, r
+		jl __not_leaf
+		# it is leaf
+		# node[ root ] = arr[l]
+		# return 
+		mov seg_idx, seg_data
+		add seg_idx, root
+		mov arr_idx, input_arr
+		add arr_idx, l
+		mov $seg_idx, $arr_idx
+		ret
+	# call childs
+	# mid = ( l + r ) / 2
+	flag __not_leaf
+		mov mid, l
+		add mid, r
+		rsh mid, 1
+		
+		# tmp = root * 2
+		mov __tmp, root
+		lsh __tmp, 1
+		
+		# build(l, mid, root * 2)
+		push l, r, root
+		push l, mid, __tmp
+		call build
+		rpop l, r, root
+		# build(mid, r, root * 2 + 1)
+		mov __tmp, root
+		lsh __tmp, 1
+		add __tmp, 1
+		push l, r, root
+		push mid, r, __tmp
+		call build
+		rpop l, r, root
+		
+		# node[root] = node[root * 2] + node[root * 2 + 1]
+		# seg_idx = seg_data + root
+		mov seg_idx, seg_data
+		add seg_idx, root
+		# tmp = seg_data + root * 2
+		mov __tmp, root
+		lsh __tmp, 1
+		add __tmp, seg_data
+		
+		mov $seg_idx, $__tmp
+		inc __tmp
+		add $seg_idx, $__tmp
+endfunc
+# ======= ask ========
+# right, left
+# l, r, root
+# sum
+func ask
+	rpop l, r, root
+	
+	# if l >= right or r <= left
+	#	 return 0
+	cmp l, right
+	jge __have_no_overlap
+	cmp r, left
+	jle __have_no_overlap
+	jmp __have_overlap
+	
+	flag __have_no_overlap
+		push 0
+		ret
+	flag __have_overlap
+	
+	# if l >= left and r <= right
+	#	return node[root]
+	cmp l, left
+	jl __have_child
+	
+	cmp r, right
+	jg __have_child
+	
+	# return node[root]
+	flag __have_no_child
+		mov seg_idx, seg_data
+		add seg_idx, root
+		push $seg_idx
+		ret
+	
+	# have child
+	flag __have_child
+		# mid = ( l + r ) / 2
+		mov mid, l
+		add mid, r
+		rsh mid, 1
+		# tmp = root * 2
+		mov __tmp, root
+		lsh __tmp, 1
+		
+		push l, r, root
+		push l, mid, __tmp
+		call ask
+		pop retv
+		rpop l, r, root
+		mov retval, retv
+		
+		mov __tmp, root
+		lsh __tmp, 1
+		inc __tmp
+		
+		mov mid, l
+		add mid, r
+		rsh mid, 1
+		
+		push l, r, root, retval
+		push mid, r, __tmp
+		call ask
+		pop retv
+		rpop l, r, root, retval
+		add retval, retv
+		
+		push retval
+		ret
+endfunc
+# ======= change ========
+# index, value
+# l, r, root
+func change
+	rpop l, r, root
+	print "change l = ", l, " r = ", r, " root = ", root, "\n"
+	# if l + 1 >= r
+	# node[root] = value; return;
+	
+	mov __tmp, l
+	inc __tmp
+	cmp __tmp, r
+	jl __change_not_leaf
+		# its a leaf
+		mov seg_idx, seg_data
+		add seg_idx, root
+		mov $seg_idx, value
+		print "node[", root, "] update to -> ", $seg_idx, " | l = ",l, " | r = ", r ,"\n"
+		ret
+	
+	flag __change_not_leaf
+	
+		mov mid, l
+		add mid, r
+		rsh mid, 1
+	
+	# if index < mid
+	#	change first
+	# else
+	#	change second
+	cmp index, mid
+	jge __second_child
+		# change l, mid, root<<1
+		mov __tmp, root
+		lsh __tmp, 1
+		push root
+		push l, mid, __tmp
+		call change
+		jmp __final
+	flag __second_child
+		# change l, mid, root<<1|1
+		mov __tmp, root
+		lsh __tmp, 1
+		or __tmp, 1
+		push root
+		push mid, r, __tmp
+		call change
+	flag __final
+		pop root
+		mov seg_idx, seg_data
+		add seg_idx, root
+		# node[root] = node[root << 1] + node[root << 1 | 1]
+		mov __tmp, root
+		lsh __tmp, 1
+		add __tmp, seg_data
+		mov $seg_idx, $__tmp
+		inc __tmp
+		add $seg_idx, $__tmp
+		print "node[", root, "] = ", $seg_idx, "\n"
+endfunc
+# ===============
+
+# querys
+# ask	: 1 <left> <right>
+# change: 2 <index> <new value>
+
+# first we build
+push 0, input_n, 1
+call build
+# then we answer
+
+var index, value, type, q
+
+call getnum
+pop q
+
+loop
+	cmp q, 0
+	jg b
+	break;
+	flag b
+	
+	call getnum
+	pop type
+	call getnum
+	call getnum
+	
+	cmp type, 1
+	jne a
+		
+		rpop left, right
+		push 0, input_n, 1
+		call ask
+		rpop ans
+		print ans, "\n"
+		
+		dec q
+		continue
+	flag a
+	
+		rpop index, value
+		push 0, input_n, 1
+		call change
+	
+	dec q
+	continue
+endloop
+

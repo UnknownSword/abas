@@ -1,0 +1,26 @@
+1 lsh 10 is 1024
+and rsh 3 takes it back to 128
+0b1100 lsh 4 is 192, and 0b1100 mul 16 is 192
+rsh 4 is back to 12
+1 lsh 62 is 4611686018427387904, which is 2 to the 62nd
+-8 rsh 1 is 9223372036854775804 and not -4
+-8 div 2 is -4
+the low byte of 0xff, lsh by a name, is 240
+the word at slot 0 after pow $0, 10 is 1024
+and after lsh $0, 1 it is 2048
+and after rsh $0, 2 it is 512
+2 to the 10th is 1024
+and again, so 1024 to the 3rd, which is 2 to the 30th, 1073741824
+7 to the 3rd is 343
+7 to the 9th is 40353607
+10 to the 1000th is 0, which has gone round
+-2 to the 5th is -32
+-2 to the 25th is -33554432
+-2 to the 50th is 1125899906842624
+7 to the power of nothing is 1
+and so is 0, which is 1
+2 to the 62nd is 4611686018427387904, the largest that fits
+2 to the 63rd is -9223372036854775808, and reaches a word as a negative number
+2 to the 64th is 0, a whole 2^64 and so nothing left
+3 to the 40th is -6289078614652622815, which is a rounding and not a zero
+-2 to the 63rd is -9223372036854775808, the same bits as 2 to the 63rd

@@ -1,0 +1,166 @@
+## cases/07_functions.abas : func, call, ret and endfunc ##
+
+# a func is a name and a place in the stream, and its body is everything up to
+# the endfunc that matches it. the endfunc is the only thing that closes a func, so
+# every func has one, and a program that is missing one is said so before it
+# runs.
+#
+# a call and a jump both set the command pointer to the body under the func. a
+# call also saves the place it was made, so the ret or the endfunc that finishes
+# the body can come back to it, while a jump keeps nothing. a jump to a func runs
+# the body and then carries on under its endfunc, as if the body had been skipped.
+#
+# a ret pushes every value it is written with onto the stack, in the order it is
+# written, and the caller takes one word off for each of them. 'ret' with nothing
+# after it pushes nothing at all, and then the caller pops nothing. an endfunc is
+# a ret that says nothing, so a func that has nothing to say ends on one and the
+# caller pops nothing.
+#
+# a func may be declared inside another one, as long as each is closed by its own
+# endfunc, and a name may stand for more than one func: a call goes to the last one
+# in the program.
+
+# a function that gives a number back
+mov n, 21
+call double
+pop result
+print "double(21) is ", result, "\n"
+
+# a function can give three numbers back in one ret, and they are pushed in the
+# order they are written, so the caller pops the last one first
+call three
+pop t_c
+pop t_b
+pop t_a
+print "three gave ", t_a, " ", t_b, " ", t_c
+print "\n"
+
+# and a function can give nothing back at all
+call quiet
+gsp left
+print "after quiet the stack holds ", left, "\n"
+
+# a function can change a name of the caller, the names belong to the program
+mov n, 10
+call bump
+print "bump left n at ", n, "\n"
+
+# a function can call another one
+mov n, 5
+call wrap
+pop result
+print "wrap(5) is ", result, "\n"
+
+# a function can call itself. the names of abas belong to the whole program, so
+# a function that calls itself has to keep what each level needs on the stack,
+# one word per level, and take it back before it returns
+mov n, 6
+call fact
+pop result
+print "fact(6) is ", result, "\n"
+mov n, 10
+call fact
+pop result
+print "fact(10) is ", result, "\n"
+
+# a function can give text back as well. text goes on the stack one byte per
+# word with the last byte on top, so 'gsp' says how many bytes were written and
+# 'pop' takes them off from the end. a number on the stack is a number, so
+# putting one back is not how text is made, and only text goes on as text
+call greet
+gsp len
+print "greet wrote ", len, " bytes, pop gives the last one: "
+pop who
+print who
+print "\n"
+print "and it is the code of a character, not the character: "
+put who
+print "\n"
+
+# the two funcs of this name are both there, and the call above went to the
+# second one, because the last func of a name is the one a call reaches
+call which_version
+pop result
+print "the func called version is number ", result, "\n"
+
+# and a call runs the body of a func without leaving the func it is written in
+call holds_another
+pop result
+print "a func called out of another one and got ", result, "\n"
+exit 0
+
+# returns n * 2
+func double
+mov d_out, n
+add d_out, d_out
+ret d_out
+endfunc
+
+# three numbers in one ret, pushed in the order they are written
+func three
+ret 10, 20, 30
+endfunc
+
+# says something and gives nothing back, so the caller pops nothing
+func quiet
+print "quiet was here"
+print "\n"
+endfunc
+
+# adds one to n and gives nothing back
+func bump
+inc n
+endfunc
+
+# calls double and gives its value back
+func wrap
+call double
+pop w_out
+ret w_out
+endfunc
+
+# returns n * n * (n-1) * ... * 1, one word of stack per level. the base case is
+# a flag inside the body, so it is part of the one func and the endfunc at the
+# bottom closes that one
+func fact
+cmp n, 1
+jle f_base
+push n                 # this level keeps its own number here
+mov f_tmp, n
+dec f_tmp              # the level under us works on one less
+mov n, f_tmp
+call fact              # the stack holds our number and the return address
+pop f_res              # the value the level under us gave back
+pop n                  # our own number again
+mul f_res, n
+ret f_res
+flag f_base
+ret 1
+endfunc
+
+# gives text back, so every byte of it is a word on the stack
+func greet
+ret "hi"
+endfunc
+
+# the first func of this name is dead, the second one is the one a call reaches
+func which_version
+ret 1
+endfunc
+func which_version
+ret 2
+endfunc
+
+# a func inside a func. the endfunc at the bottom closes the inner one and the one
+# under it closes the outer one, and a call to the inner name works from
+# anywhere, not only from the func that holds it
+func holds_another
+print "the outer func is running, and it is calling the inner one: "
+call inner
+print "\n"
+ret 99
+endfunc
+func inner
+print "the inner one says "
+print 42
+endfunc

@@ -1,0 +1,43 @@
+## totor/8_text.abas : text, characters and bytes on the stack ##
+# a value is either a number or a piece of text. when text is pushed onto the
+# stack, each character becomes one byte (one word) with the last byte on top.
+# that makes it easy to build and read strings byte by byte.
+
+# pushing a string puts its bytes in order, the last character ends up on top
+ssp 0
+push "hi"
+gsp len
+print "'hi' takes "
+print len
+print " words on the stack"
+print "\n"
+
+pop last, first
+print "popped from the top: "
+put last
+print " then "
+put first
+print "\n"
+ssp 0
+
+# writing text into stack slots starts at that slot and writes one byte per word.
+# a slot that is not on the stack yet is made as it is written to, so the stack
+# grows to fit the text
+push 0
+grow 2
+mov $0, "ab"
+mov c1, $0
+mov c2, $1
+print "slot 0 is "
+put c1
+print ", slot 1 is "
+put c2
+print "\n"
+ssp 0
+
+# moving text into a name gives the whole text value, printing it shows the text
+mov word, "abas"
+print word
+print "\n"
+
+exit 0

@@ -1,0 +1,212 @@
+## totor/6_flow.abas : flag, cmp and every jump ##
+# abas runs a program from the top down. flag, cmp and the jumps are how it
+# stops, chooses and goes round.
+#
+# first the shape of a program, because it is unlike most languages
+#
+#   a flag is a name for a place in the stream, and nothing else
+#
+#       flag name
+#
+#   the flag saves the place the program is at under that name, and a jump to
+#   the name sets the place the program is at to it. a jump therefore lands on
+#   the flag itself, the flag runs again as the program passes it, saves the
+#   same place once more, and carries on into the line under it. there is
+#   nothing to open and nothing to close, a flag is a mark on the file
+#
+#   a name may stand in front of more than one flag, and the last one in the
+#   program is the one a jump goes to. the ones before it are simply forgotten.
+#   that is what a loop wants, since every block it walks through can have a
+#   name of its own
+#
+#   a flag is not a block either. the commands under a flag belong to whatever
+#   block they are written in, which for a file of main code is the main code.
+#   a func is the thing that is a block, and it is what a jump can go to as
+#   well as a flag. that is 7_functions
+#
+# cmp compares two values and leaves the answer where a jump can see it. the
+# values can be numbers, characters or text, and the smaller one can stand on
+# either side of the cmp
+#
+# jmp always jumps. the other six jump only when cmp says so, and every one of
+# them takes the name of a flag or of a func
+#
+#     jmp name    always
+#     je  name    the two values were equal
+#     jne name    the two values were not equal
+#     jl  name    the first value was smaller
+#     jg  name    the first value was bigger
+#     jle name    the first value was smaller or the same
+#     jge name    the first value was bigger or the same
+#
+# cmp does not care how the values were written, so 5 and 0x05 are the same
+# value to it. the four ordering jumps work on text too, comparing the bytes
+# from the left
+
+# the first block below prints what all six conditional jumps make of a pair of
+# values, and it works its way through five pairs before it hands back to the
+# flag it is jumped back to
+mov a, 3
+mov b, 7
+mov round, 0
+jmp report
+flag reported
+
+# a loop is a flag whose body jumps back to it. the jump above the body gets
+# into it, and the jump below either goes round again or carries on to the
+# block that ends it. that is the shape of every loop in abas
+mov x, 5
+print "counting down from ", x, ": "
+mov n, x
+jmp countdown
+flag countdown_done
+print "\n"
+
+mov i, 1
+mov total, 0
+jmp sum_loop
+flag summed
+print "one to ten adds up to ", total
+print "\n"
+
+# gcp is the odd one out. it hands a command the number of the place it sits
+# in the stream, which is how a program finds out where it is
+gcp here
+print "this line is command number ", here
+print "\n"
+
+# a jump does not have to go forwards. it can reach a flag that stands above it
+# in the file, which is how a block of code hands control to another block and
+# carries on from there afterwards
+print "about to hand over to the block under the next line"
+jmp work_again
+flag never_reached
+print "this line never runs, the jump above skips over it"
+
+flag after_never
+
+# ------------------------------------------------------------------ the block
+# everything from here to the end of the file is the block that 'jmp report'
+# reaches. nothing here is a func and nothing here is opened, so it is only
+# ever run by a jump to one of its flags
+
+flag report
+print "  ", a, " against ", b, " is: "
+cmp a, b
+je  r_equal
+print "not equal "
+jmp r_rest
+flag r_equal
+print "equal "
+jmp r_rest
+flag r_rest
+cmp a, b
+jne r_not_same
+print "not not-equal "
+jmp r_rest2
+flag r_not_same
+print "not-equal "
+jmp r_rest2
+flag r_rest2
+cmp a, b
+jl  r_less
+print "not less "
+jmp r_rest3
+flag r_less
+print "less "
+jmp r_rest3
+flag r_rest3
+cmp a, b
+jg  r_greater
+print "not greater "
+jmp r_rest4
+flag r_greater
+print "greater "
+jmp r_rest4
+flag r_rest4
+cmp a, b
+jle r_le
+print "not less-or-equal "
+jmp r_rest5
+flag r_le
+print "less-or-equal "
+jmp r_rest5
+flag r_rest5
+cmp a, b
+jge r_ge
+print "not greater-or-equal "
+jmp r_rest6
+flag r_ge
+print "greater-or-equal "
+jmp r_rest6
+flag r_rest6
+print "\n"
+
+# that pair is done, so the next one is picked out of the round counter. text
+# compares the same way numbers do, and characters are numbers, so the same
+# block reports all three
+inc round
+cmp round, 5
+jge reported
+cmp round, 1
+jle pair_two
+cmp round, 2
+jle pair_three
+cmp round, 3
+jle pair_text
+jmp pair_chars
+
+flag pair_two
+mov a, 7
+mov b, 3
+jmp report
+
+flag pair_three
+mov a, 5
+mov b, 5
+jmp report
+
+flag pair_text
+mov a, "apple"
+mov b, "banana"
+jmp report
+
+flag pair_chars
+mov a, 'a'
+mov b, 'b'
+jmp report
+
+# ------------------------------------------------------------------- the loops
+# the two loops above are written here, at the end of the file, and jumped into
+# from the top of it. a jump that goes to a flag above the block it is standing
+# in is no different from any other jump
+
+flag countdown
+cmp n, 0
+jle countdown_done
+print n
+print " "
+dec n
+jmp countdown
+
+flag sum_loop
+cmp i, 11
+jge summed
+add total, i
+inc i
+jmp sum_loop
+
+# ----------------------------------------------------------------- the handoff
+# the block the jump at the top of the file lands in. it prints where it is
+# and then hands back to a flag that stands above it
+flag work_again
+print " and this is where that block got to", "\n"
+gcp where
+print "this block is command number ", where
+jmp after_work
+
+flag after_work
+print "\n"
+print "and that was a jump to a flag above the one it was standing in"
+print "\n"
+exit 0

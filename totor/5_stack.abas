@@ -1,0 +1,201 @@
+## totor/5_stack.abas : the one stack, and how to reach into it ##
+# abas has one stack. it starts empty, index 0 is the bottom of it and the
+# count of words on it grows as things are pushed. every value in abas is one
+# word of it, so the stack is the one place where numbers and text live side by
+# side.
+
+# push puts a value on the top of the stack, pop takes the top one off and
+# puts it in a name
+mov a, 1
+mov b, 2
+push a, b                   # any number of arguments, in the order written
+gsp size
+print "the stack holds ", size, " words, the top is "
+pop top
+print top
+print "\n"
+
+# a value of text goes on the stack one byte per word, with the last byte on
+# top. so three letters are three words and three pops
+ssp 0
+push "hi!"
+gsp size
+print "'hi!' took ", size, " words", "\n"
+pop last, middle, first     # three names, three words off, in that order
+print "popped them off the top: ", last, " ", middle
+print " ", first
+print "\n"
+ssp 0
+
+# push and pop are not how a function gets its arguments and gives its answer.
+# a function reads what it needs from names, and a ret leaves what it gives back
+# on this stack for the caller to pop. see 7_functions
+
+# a name with a dollar in front of it is the stack itself. a number behind the
+# dollar is a slot on it, a name behind the dollar is a slot that name says,
+# and there is no slot 0 shorthand
+push 10, 20, 30
+gsp size
+print "three words on it, gsp says ", size, "\n"
+
+mov top, $0
+mov second, $1
+mov third, $2
+print "and the slots are ", top, " ", second, " ", third
+print "\n"
+
+# writing to a slot with a number behind the dollar changes that word
+mov $1, 99
+print "after writing 99 into slot 1 it holds ", $1, "\n"
+
+# a name behind the dollar works the same way, so a program that keeps a slot
+# number in a name can use that name as a pointer. remember that the name holds
+# the number of the slot, not the value in it
+mov where, 2
+mov $where, 55
+print "after writing 55 into slot ", where, " it holds ", $where
+print "\n"
+
+# writing text into a slot is the same idea, except that a piece of text is one
+# byte per word the way push leaves it. so 'mov $3, "hi"' writes 'h' into slot 3
+# and 'i' into slot 4, and the stack is two words longer than it was
+ssp 0
+mov $0, "hi"
+gsp size
+print "wrote two bytes from slot 0, gsp says ", size, "\n"
+mov ch, $1
+print "and slot 1 holds "; put ch; print "\n"
+ssp 0
+
+# ---------------------------------------------------------------------------
+# grow is how the stack gets longer and shorter without a value moving
+#
+# push and pop move a value each, and take as many arguments as you give them:
+#
+#   push name      the value in that name goes on the stack
+#   push $3        the word in slot 3 goes on the stack
+#   push $$3       the same word, a second dollar means the same as one
+#   push 'a'       the code of the character goes on the stack
+#   push "hi"      one byte per word, the last byte on top
+#   push 10        the number 10 goes on the stack
+#   push a, b, c   three values, in the order they are written
+#
+#   pop name       the top of the stack goes into that name, one word off
+#   pop $3         the top of the stack goes into slot 3, one word off
+#   pop a, b, c    three words off, the top into c and the one under into b
+#
+# grow moves no value at all, it only changes how long the stack is, and what it
+# is given says by how much:
+#
+#   grow 10        ten words go on the stack, all of them 0
+#   grow -10       ten words come off again
+#   grow n         as many words as n says, and n may be negative
+#
+# so 'grow 4' is the way to make room for scratch and 'grow -4' is how it is
+# handed back. that is what a function uses the stack for, see 7_functions
+# ---------------------------------------------------------------------------
+
+# ten fresh words, all of them 0, and gsp says the stack is ten longer
+ssp 0
+grow 10
+gsp size
+print "grow 10 made the stack ", size, " words long", "\n"
+mov word, $9
+print "and slot 9 is ", word, "\n"
+
+# a negative amount takes them off again, so grow and ssp are two ways of
+# saying the same thing when the size is already known
+grow -10
+gsp size
+print "grow -10 took them all back, ", size, " words left", "\n"
+
+# a stack cannot go below empty, so a grow that asks to take off more words than
+# are there leaves it empty rather than stopping with an error. that makes
+# 'grow -1000' the same as 'ssp 0' and 'cls'
+push 1, 2
+grow -1000
+gsp size
+print "grow -1000 on a stack of two left ", size, "\n"
+
+# a name works as well as a number, so a function that reserved a scratch and
+# kept the size can hand back exactly what it took
+mov slots, 3
+grow slots
+gsp size
+print "grow slots made it ", size, "\n"
+mov first, $0
+print "and slot 0 of the new room is ", first, "\n"
+mov slots, 0
+sub slots, 3              # grow takes one number, so a negative one is built
+grow slots                # out of a name when a program wants it in a name
+gsp size
+print "grow of a negative name took three off, ", size, "\n"
+
+# grow takes exactly one argument, where push and pop take as many as they are
+# given. put the hash off the front of the next line to watch abas say so
+# grow 1, -1
+
+# ssp cuts the stack back to a size. everything above the number goes and the
+# words below stay, so it is how a function gives its scratch back and how a
+# program throws away what it was building
+ssp 0
+push 1, 2, 3
+gsp size
+print "three words on it, gsp says ", size, "\n"
+ssp size
+sub size, 2
+ssp size
+gsp size
+print "cut back by two words, gsp says ", size, "\n"
+ssp 0
+
+# cls empties the stack in one word, it is 'ssp 0' under a name of its own. it
+# is the shortest way to throw away whatever was being built, and the way a
+# function that used the stack should give its scratch back before it returns
+push 1
+push 2
+cls
+gsp size
+print "after cls the stack holds ", size, " word(s)", "\n"
+
+# the three commands that clear and the one that clears all of them
+#
+#     cls     the stack goes back to being empty, the same as ssp 0
+#     clv     every name is thrown away, and a name read after it has no value
+#             until something writes to it again
+#     clf     the names of the funcs are thrown away, so a call or a jump to a
+#             name that is only a func stops with 'is not a flag and not a
+#             func'. the names of the flags are not touched, since a flag is a
+#             name in the stream rather than something the program made
+#     clear   all three at once, the stack and the names and the func names
+#
+# none of them touch the program counter or the stack of return addresses, so a
+# function can clear the scratch and still come back to the call that came in.
+# take the hash off the next line to watch a program clear itself and run on
+# from there with nothing left
+# clear
+gsp size
+print "the stack is still ", size, " word(s) here"
+print "\n"
+
+# a slot that is not on the stack is an error rather than a zero, so a program
+# that reaches one slot too far says so instead of quietly getting it wrong.
+# always take gsp first, and never let an index come from what was typed. put
+# the hash off the front of the two lines below to see abas stop on it
+# mov far, 99
+# mov empty, $far
+
+# there is no slot 0 shorthand. '$' on its own is not a thing, it wants an
+# index behind it. a second dollar in front means the same as one, so $$$0 is
+# the same slot as $0
+
+# the stack is how a program remembers things without names. a loop that has
+# to keep a running total can push it and leave it alone while it works on
+# something else, which is the trick recursion needs in 7_functions
+
+# to look at what a program made of your file, ask for its commands with
+#     ./bin/main -p totor/5_stack.abas
+# gcp hands a command the place it sits in the stream, which is handy when a
+# program has to know where it is, see 6_flow
+
+exit 0

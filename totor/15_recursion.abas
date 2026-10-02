@@ -1,0 +1,191 @@
+## totor/15_recursion.abas : the stack is how a function remembers itself ##
+# a recursive function has to keep something different for every level it is
+# running at, and names cannot do that, because names belong to the whole
+# program and every level would tread on the others. the stack can do it,
+# because each level pushes its own words and pops them again before it hands
+# its answer back.
+#
+# every function below has the same three parts:
+#
+#   1. a base case, the question it can answer without calling itself again
+#   2. a test that finds the base case, and a jump to the block that answers it
+#   3. one word of stack per level, pushed before the call that goes deeper and
+#      popped after it comes back
+#
+# run it with
+#
+#     ./bin/main -I . totor/15_recursion.abas
+#
+# and remember that nothing stops a func from calling itself as deep as it
+# likes. a func that calls itself for ever runs for ever, and -d is what puts a
+# limit on it
+#
+#     ./bin/main -I . -d 1000 totor/15_recursion.abas
+
+include "lib/printnum.abas"
+
+# ---------------------------------------------------------------- one: factorial
+# the plain one. each level keeps its own n on the stack while the level under
+# it runs, and takes it back when that level is done
+
+mov n, 10
+call factorial
+pop total
+print "factorial(10) is "
+print total
+print "\n"
+
+# ----------------------------------------------------------------- two: hailstone
+# the same idea with no formula to multiply. an even number is half, an odd
+# number is three times itself plus one, and the run always comes back to 1.
+# what is worth carrying up the stack is not n but the count of steps taken, so
+# each level pushes its own count, and the answer is built by adding one on the
+# way back up
+
+mov n, 4
+call hailstone
+pop steps
+print "hailstone(4) took "
+print steps
+print " steps"
+print "\n"
+
+# a number that has a longer run, to show the count climbing
+mov n, 27
+call hailstone
+pop steps
+print "hailstone(27) took "
+print steps
+print " steps"
+print "\n"
+
+# ------------------------------------------------------------ three: the run itself
+# this one prints the run instead of its length, so it carries its own n up the
+# stack rather than a count. the order it comes back in is the reverse of the
+# order the numbers were taken in, because the innermost call prints first. it
+# says the run rather than giving it back, so it ends on a bare endfunc and the
+# caller pops nothing
+
+print "the run of 7, from the inside out: "
+mov n, 7
+call show_fall
+print "\n"
+
+# ------------------------------------------------------------------ four: a string
+# and this one has nothing to multiply at all. it counts a piece of text by
+# asking about the rest of it, and the answer is one more than the rest. the
+# length is carried up the stack for the same reason as everywhere else
+
+mov str_len, 6
+call count_chars
+pop counted
+print "count_chars(6) is "
+print counted
+print "\n"
+
+exit 0
+
+# ------------------------------------------------------------------ the funcs
+
+# n factorial. the base case is 1 and its value is 1, and this level's own n is
+# the word it pushes so that the level under it can change n as much as it likes
+func factorial
+cmp n, 1
+jle f_base
+push n                    # our own n, safe on the stack while n moves on
+mov next, n
+dec next
+mov n, next
+call factorial            # the level under us pushes on top of our word
+pop result                # the value it worked out
+pop n                     # our own n again
+mul result, n
+ret result
+flag f_base
+ret 1
+endfunc
+
+# how many steps it takes to get from n down to 1
+func hailstone
+push 0                    # our own count of steps so far, one word per level
+cmp n, 1
+jle h_count
+mov h_two, 2
+mov h_tmp, n
+mod h_tmp, h_two          # a remainder of 0 means n is even
+mov h_next, 0
+cmp h_tmp, 0
+je h_half
+mov h_next, n             # an odd number is three times itself plus one
+mul h_next, 3
+inc h_next
+jmp h_go
+flag h_half
+mov h_two, 2
+mov h_next, n
+div h_next, h_two
+jmp h_go                  # a block that ends on the next flag steps over it too
+flag h_go
+mov n, h_next
+call hailstone            # the level under us pushes on top of our word
+pop total                 # the count it worked out for the rest of the run
+pop our_count             # our own word, taken back off
+add total, 1              # and this level's one step on top of it
+mov h_ret, total
+ret h_ret
+flag h_count
+pop our_count             # one word per level, and this is the last of them
+mov h_ret, our_count
+ret h_ret
+endfunc
+
+# the same walk, but it prints each number as the calls come back, so what goes
+# up the stack is n rather than a count
+func show_fall
+push n                    # our own n, one word per level
+cmp n, 1
+jle sf_base
+mov sf_two, 2
+mov sf_tmp, n
+mod sf_tmp, sf_two
+mov sf_next, 0
+cmp sf_tmp, 0
+je sf_half
+mov sf_next, n
+mul sf_next, 3
+inc sf_next
+jmp sf_go
+flag sf_half
+mov sf_two, 2
+mov sf_next, n
+div sf_next, sf_two
+jmp sf_go
+flag sf_go
+mov n, sf_next
+call show_fall            # the level under us prints its own numbers first
+pop sf_mine               # our own n, which is the next number of the run
+jmp sf_say
+flag sf_base
+pop sf_mine               # this level's own n, the 1 it stopped on
+jmp sf_say
+flag sf_say
+mov pn, sf_mine
+call printnum
+print " "
+endfunc                      # nothing back, this one only says the run
+
+# how many characters there are, asked one at a time. there is no multiplication
+# here, the answer is one more than the answer for the rest of the text
+func count_chars
+cmp str_len, 0
+jle c_done
+push str_len              # our own length, safe while str_len counts down
+dec str_len
+call count_chars
+pop rest                  # the count for the rest of the text
+pop str_len               # our own length again
+add rest, 1
+ret rest
+flag c_done
+ret 0
+endfunc

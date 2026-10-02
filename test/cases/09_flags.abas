@@ -1,0 +1,102 @@
+## cases/09_flags.abas : flag on its own ##
+
+# 04_flow used flags to write blocks. a flag is only a name for a place in the
+# stream, so there is not much to it on its own, and this case is about the four
+# things that follow from that.
+#
+# one: a jump lands on the flag itself, so the flag runs again and the program
+#     goes on under it. a flag is never a jump target that skips itself
+#
+# two: nothing under a flag belongs to the flag, so a block that ends on a jump
+#     has to be able to say so, and a block that can fall through is a block
+#     that runs whatever stands under it
+#
+# three: the names of every flag in the stream are read before the program runs,
+#     so a jump may go forward to a flag that is still ahead of it
+#
+# four: a name may be given more than one flag, and the last one in the program
+#     is the one a jump reaches. a func is reached by its name in the same way,
+#     so a name that is both a flag and a func goes to the flag
+
+mov n, 0
+
+# one: a jump that lands on its own flag is the whole of a loop
+print "one, counting to three: "
+flag count
+inc n
+print n
+print " "
+cmp n, 3
+jl count
+print "\n"
+print "and n stopped at ", n, "\n"
+
+# two: a block that ends on a jump leaves by a jump, and the line under it is
+# only reached by a jump of its own
+jmp two_first
+flag two_first_lands
+print "two, the line under a block is only reached by name: "
+print "\n"
+jmp two_second
+
+# three: the jump above went forward to a flag that was still to come
+flag two_first
+print "  the first block was jumped to, and jumped out of"
+print "\n"
+jmp two_first_lands
+
+flag two_second
+print "  the second block was jumped to, and jumped out of"
+print "\n"
+jmp two_second_lands
+flag two_second_lands
+
+# four: two flags of one name, and only the second is reachable
+print "four, "
+jmp twice
+flag twice
+print "this flag is never reached, the jump above passed it: "
+print "\n"
+jmp twice_lands
+flag twice
+print "the last flag of the name is the one the jump reached, and it says: "
+print "\n"
+print "  a name with two flags means the last one"
+print "\n"
+jmp twice_lands
+flag twice_lands
+
+# and the same name twice as a func, where the call goes to the last one
+call which
+print "  a call went to the last func of the name, which returns ", which_out
+print "\n"
+
+# a jump to a name that is a func runs the body from its first line, and the
+# body decides where the program goes next, because a jump saves nothing for a
+# body to come back to. that is why a func a jump goes into has to leave by a
+# jump of its own rather than by an endfunc, and it is the one way to write a func
+# that is really a block under another name
+print "and a jump to a func runs its body, and the body leaves by a jump: "
+jmp walk
+flag walk_lands
+print "  the body of walk ran and jumped out, and this is where it landed"
+print "\n"
+exit 0
+
+# the first func of this name is dead, the second one is the one a call reaches
+func which
+mov which_out, 1
+ret which_out
+endfunc
+func which
+mov which_out, 2
+ret which_out
+endfunc
+
+# the body a jump runs. an endfunc here would stop the program, because there is
+# no call for it to return from, so this body jumps out instead
+func walk
+print "  the body of walk ran"
+print "\n"
+jmp walk_lands
+endfunc

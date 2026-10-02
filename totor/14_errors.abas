@@ -1,0 +1,108 @@
+## totor/14_errors.abas : what abas refuses to do, and how it says so ##
+# abas checks a program twice. before it runs anything it reads the whole
+# command stream, and then every command it runs can still stop it. either way
+# the message names the file, the line, and what was wrong.
+#
+# the commands on the next lines are switched off with a hash. take the hash off
+# one of them and run the file again to see the error it gives.
+
+# a name that nothing has written to yet has no value to read, so the first read
+# of it is an error. put the hash off the front of the print to see it
+mov given, 5
+print "a name that was given a value reads back: ", given, "\n"
+# print never_set
+
+# dividing by zero has no answer, so abas stops rather than invent one
+mov zero, 0
+mov n, 10
+# div n, zero
+
+# a slot that is not on the stack is the same kind of mistake: an index that
+# reaches past the top of it. gsp first is the habit that avoids it
+push 1
+push 2
+# mov far, $9
+
+# a jump to a name that is neither a flag nor a func goes nowhere, and abas says
+# so before it runs
+# jmp nowhere_at_all
+
+# a call wants a func and a flag is only a label, so a call to a flag stops too
+# flag just_a_label
+# call just_a_label
+
+# a func with no endfunc, and an endfunc with no func above it, are both found
+# before the program runs. the next two lines are a func and an endfunc, so one of
+# the two errors can be seen by switching one of them off
+# func never_closed
+# print "this body has no endfunc"
+# endfunc
+
+# a function that is called and never comes back is an error at the end of the
+# program, since there is no call left to come back to
+# call never_closed
+
+# and a ret outside a call is the same mistake said the other way round
+# ret 0
+
+# an endfunc outside a call is that as well, so a jump into a func's body and then
+# out of the bottom of it does not get back to anyone
+# flag somewhere
+# endfunc
+
+# a command with the wrong number of arguments is caught when it runs, and one
+# that has to be found before the program runs is caught by -c
+# inc
+# add 1
+
+# and so is a command given arguments it has no use for
+# cls 1
+
+# a grow that is given two arguments is caught when it runs, since grow takes
+# one argument and no more, where push and pop take as many as they are given
+# grow 1, -1
+
+# every argument of a var is a name, and a var takes no value, so a number after
+# a comma is a name that is not there rather than a shorter way of writing a mov
+# var not_a_name, 5
+
+# a shift of 64 bits is all the bits a word has, so an amount over 63 would move
+# more bits than there are. that is a mistake, and it is said as one, where a
+# power too large for a word is not: a power goes round and a shift cannot
+# lsh n, 64
+# rsh n, -1
+
+# a negative exponent is the other kind of answer a power has no way of giving,
+# since a whole number of turns is what pow counts and -1 of them is a fraction
+# pow n, -1
+
+# a command that is not one abas knows is the plainest error there is
+# frobnicate 1
+
+# to see the first kind of error without running anything, ask abas to check the
+# file and stop there
+#
+#     ./bin/main -I . -c totor/14_errors.abas
+
+# -s stops a program after a number of commands, which is how a loop that never
+# ends gets found rather than left running
+#
+#     ./bin/main -I . -s 100 totor/6_flow.abas
+
+# -d, or --function-depth, stops a program that calls itself deeper than that.
+# without it there is no limit at all, so a func that calls itself for ever runs
+# for ever and it is the step limit that catches it
+#
+#     ./bin/main -I . -d 1000 totor/7_functions.abas
+#     ./bin/main -I . --function-depth 1000 totor/7_functions.abas
+
+# -v says how many commands ran, and -l lists every command abas knows
+#
+#     ./bin/main -v totor/0_welcome.abas
+#     ./bin/main -l
+
+# a program that stops with an error hands the shell the code 1. a program that
+# finishes hands back whatever it gave exit, so this one says it worked
+print "and this program got all the way to the end"
+print "\n"
+exit 0

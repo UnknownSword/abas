@@ -1,0 +1,6 @@
+func hello
+print "Hello world", "\n"
+print "abas is king work\n"
+endfunc
+call hello
+call hello

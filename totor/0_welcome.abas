@@ -1,0 +1,63 @@
+## totor/0_welcome.abas : start here ##
+
+# abas is a small stack language. a program is a list of commands, abas runs
+# them from the top down and stops when the commands run out.
+#
+# build it and run this file with
+#
+#     make build
+#     ./bin/main -I . totor/0_welcome.abas
+#
+# the lessons are named after the order to read them, so 1_comment comes before
+# 2_vars and so on. every lesson is a whole program that runs, so run them all
+# with
+#
+#     for f in totor/*.abas; do ./bin/main -I . "$f"; done
+#
+# or let totor/run.sh do that and tell you if any of them stops with an error
+#
+#     ./totor/run.sh
+#
+# two of them wait for you to type something, 9_io and 12_stdlib. those read
+# stdin, so give them a line when they ask
+#
+#     echo hello | ./bin/main -I . totor/9_io.abas
+#
+# what is in the box
+#
+#     0_welcome      this file
+#     1_comment      saying things without running them
+#     2_vars         names, and the var that is optional
+#     3_numbers      every way to write a number
+#     4_arithmetic   doing sums on names, and inc and dec on all of them
+#     5_stack        the one stack, push, pop and how to reach into it
+#     6_flow         flag, cmp, every jump, and the loop that wraps them up
+#     7_functions    func, endfunc, call and ret
+#     8_text         text, characters and bytes
+#     9_io           reading and writing
+#     10_text_words  turning numbers into text, the hard way
+#     11_include     using other files, and the standard library
+#     12_stdlib      reading a line, and how a library is written
+#     13_programs    three whole programs, start to finish
+#     14_errors      what abas refuses to do, and how it says so
+#     15_recursion   the stack is how a function remembers itself
+
+# a name is a place to keep a value, and mov is how a value gets there. if the
+# name is not there yet, mov makes it, so there is nothing to declare first
+mov who, "you"
+print "hello from abas, ", who, "\n"
+
+# print writes text or a number and stays where it is, and it takes as many
+# values as one line holds. it writes no newline of its own, so the program says
+# where a line ends: 'print "\n"' is a line end and nothing else
+print "no newline here", "\n"
+print "one line below", "\n"
+
+# a line of code ends at a newline or at a semicolon, so two short commands can
+# share a line. that is worth knowing and rarely worth doing
+print "one line, two commands: "; print 42
+print "\n"
+
+# exit ends the program. the number it is given is the code the program hands
+# back to the shell, and only the low byte of it is kept
+exit 0

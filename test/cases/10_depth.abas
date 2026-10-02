@@ -1,0 +1,59 @@
+## cases/10_depth.abas : --function-depth stops a func that calls itself for ever ##
+# nothing limits how deep a func may call itself, so a func that misses its way
+# out runs until the machine has no memory left, and the only thing that stops it
+# in reasonable time is the step limit. --function-depth, or -d, is the other way
+# round: it puts a limit on the number of calls that are open at once, and a call
+# that would open one too many is an error.
+#
+# this case is run with
+#
+#     --function-depth 64
+#
+# which is in 10_depth.args next to it, and it is expected to stop with code 1.
+# the run stops on the call that would have been the 65th deep, so the line in
+# the message is the call rather than anything else
+#
+# the same program with a smaller limit, or with none at all, is written out
+# under the func and is worth running by hand
+
+include "lib/printnum.abas"
+
+print "a func that calls itself and never stops, up to the limit:"
+print "\n"
+mov n, 1
+call down
+print "\n"
+
+# nothing is ever printed after this line, because the call below never comes
+# back and the program stops on the call that is too deep
+print "and this line is never reached"
+print "\n"
+exit 0
+
+# prints n and then calls itself with one more, and never comes back. every call
+# it makes goes one deeper than the one before, so the depth grows by one each
+# time round and there is no base case to find
+func down
+mov pn, n
+call printnum
+print " "
+inc n
+call down
+ret 0
+endfunc
+
+# what the run really is, for the record:
+#
+#     ./bin/main -I . -d 8 test/cases/10_depth.abas
+#       prints eight numbers and then stops with
+#       error: call: 8 functions deep, that is the limit --function-depth set
+#     ./bin/main -I . --function-depth 8 test/cases/10_depth.abas
+#       the same, since --function-depth is the long name of -d
+#     ./bin/main -I . -d 0 test/cases/10_depth.abas
+#       the same as leaving the option out, since 0 is how the limit says that
+#       there is no limit at all
+#     ./bin/main -I . -s 100 test/cases/10_depth.abas
+#       stops on the hundredth command instead, which is what a step limit is
+#       for: the depth is not the thing being measured here
+#     ./bin/main -I . test/cases/10_depth.abas
+#       runs until the machine is out of memory

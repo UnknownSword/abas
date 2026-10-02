@@ -1,0 +1,56 @@
+## totor/10_text_words.abas : turning numbers into text, the hard way ##
+# abas has one type of number and one type of text, and it will not turn one
+# into the other for you. this lesson builds the digits of a number by hand, one
+# byte per word, and that is exactly what lib/printnum.abas does.
+
+# a digit character is its code plus 48, because '0' is 48 and every digit
+# after it is one more. this puts a number into a digit character
+mov code, 7
+add code, 48
+put code
+put ' '
+mov code, 0
+add code, 48
+put code
+put ' '
+mov code, 9
+add code, 48
+put code
+print "\n"
+
+# and this takes a digit character back into a number by taking 48 off
+mov code, '7'
+sub code, 48
+print "'7' back to a number is "
+print code
+print "\n"
+
+# so a whole number is a string of those. a two digit number is
+# tens first, then the units under it
+mov n, 42
+mov tens, n
+mov tmp, 10
+div tens, tmp
+mov units, n
+mod units, tmp
+add tens, 48
+add units, 48
+print "tens of 42 is "
+put tens
+print ", units is "
+put units
+print "\n"
+
+# a number can be up to 19 digits long, so this only shows three. lib/printnum
+# loops over every digit instead, and lib/printnum.abas walks through that loop
+
+# text is compared byte by byte from the left, so cmp works on text too
+cmp "abc", "abd"
+jl t_less
+jmp t_done
+flag t_less
+print "'abc' is smaller than 'abd'"
+print "\n"
+flag t_done
+
+exit 0

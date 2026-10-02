@@ -1,0 +1,124 @@
+## cases/03_stack.abas : the one stack of abas, push, pop, grow and the pointers ##
+
+mov sp, 0
+mov n, 0
+mov a, 0
+mov b, 0
+mov c, 0
+
+gsp sp
+print "the stack is empty, gsp says ", sp, "\n"
+
+# push takes any number of arguments and puts them on in the order written
+push 10
+push 20
+push 30
+gsp sp
+print "after three pushes ", sp, "\n"
+
+# pop takes any number of arguments too, one word off for each of them
+pop c, b, a
+print "popped ", a, " ", b, " ", c, "\n"
+gsp sp
+print "the stack is empty again ", sp, "\n"
+
+# a number is a value like any other, so 'push 10' and 'push n' do the same kind
+# of thing once n holds 10
+mov n, 10
+push n
+gsp sp
+print "after pushing a name that holds 10 ", sp, "\n"
+pop n
+print "and popping it gives ", n, "\n"
+
+# a pointer reads a place on the stack
+push 'a', 'b', 'c'
+gsp sp
+print "three words are on the stack, gsp says ", sp, "\n"
+dec sp                     # sp is the place of the last word now
+mov n, sp
+print "the top of the stack is at ", n, "\n"
+print "$n gives ", $n, "\n"
+
+# $$$n is the same as $n
+print "$$$n gives ", $$$n, "\n"
+
+# and a pointer can write there too
+mov $n, 'A'
+print "after mov $n, 'A' it is ", $n, "\n"
+mov n, 0
+print "word 0 of the stack is ", $n, "\n"
+add $n, 1
+print "after add $n, 1 it is ", $n, "\n"
+
+# a pop can write into a slot as well as into a name
+pop $1
+gsp sp
+print "pop $1 took one word off, ", sp, "\n"
+
+# text can be pushed as bytes
+mov word, "hi"
+gsp sp
+push word
+gsp n
+print "two bytes of text were pushed, ", n, "\n"
+pop c
+print "the last byte is "; put c; print "\n"
+
+# grow is the one command that moves the top of the stack without moving a value
+# with it: a positive number makes room and a negative number takes it back
+cls
+grow 10
+gsp sp
+print "grow 10 made the stack ", sp, " words long", "\n"
+mov n, $9
+print "and slot 9 is ", n, "\n"
+
+grow -10
+gsp sp
+print "grow -10 took them back, ", sp, "\n"
+
+# a stack cannot go below empty, so a grow that asks for more leaves it empty
+grow 3
+grow -1000
+gsp sp
+print "grow -1000 on a stack of three left ", sp, "\n"
+
+# a name works as well as a number, and grow takes exactly one argument
+mov n, 2
+grow n
+gsp sp
+print "grow n with n at 2 made it ", sp, "\n"
+cls
+
+# ssp gives memory back to the stack
+mov n, 100
+ssp n
+gsp sp
+print "ssp 100 made the stack ", sp, "\n"
+mov n, 0
+ssp n
+gsp sp
+print "ssp 0 made it ", sp, "\n"
+
+# cls empties the stack in one word, it is 'ssp 0' under a name of its own
+push 1
+push "hi"
+cls
+gsp sp
+print "cls made it ", sp, "\n"
+
+# and the stack a function used is its own to clear before it comes back
+call uses_the_stack
+gsp sp
+print "after a function that cleared its scratch ", sp, "\n"
+exit 0
+
+# pushes a few words and clears them again, so the caller finds the stack as it
+# was. an endfunc gives nothing back, so the caller pops nothing
+func uses_the_stack
+push 1
+push 2
+push 3
+cls
+endfunc

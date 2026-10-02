@@ -1,0 +1,81 @@
+## cases/13_rpush.abas : rpush and rpop ##
+
+# push and pop take any number of arguments and work through them in the order
+# they are written. push puts the first one on the bottom of the stack and the
+# last one on top, and pop hands the top of the stack to the first name written,
+# so a caller that pushes a, b, c and pops first, second, third gets 3, 2, 1.
+#
+# rpush and rpop are the same two commands with the arguments written the other
+# way round, and nothing else:
+#
+#   rpush a, b, c     the same as push c, b, a, so a is on the top
+#   rpop  a, b, c     the same as pop c, b, a, so the top goes into c
+#
+# push and pop walk the stack from one end together and rpush and rpop walk it
+# from the other, so one rpush and one plain pop hand a func its arguments in the
+# order the names are written, which is what they are for
+
+print "push  a, b, c then pop  first, second, third: "
+mov a, 1
+mov b, 2
+mov c, 3
+push a, b, c
+pop first, second, third
+print first, " ", second, " ", third, "\n"
+
+print "rpush a, b, c then pop  first, second, third: "
+rpush a, b, c
+pop first, second, third
+print first, " ", second, " ", third, "\n"
+
+print "push  a, b, c then rpop first, second, third: "
+push a, b, c
+rpop first, second, third
+print first, " ", second, " ", third, "\n"
+
+print "the values themselves are not touched, only the order: "
+push 10, 20, 30
+rpop one, two, three
+print one, " ", two, " ", three, "\n"
+
+# a slot is a name for a place on the stack, so it is a destination like any
+# other. writing one that is not on the stack yet makes the stack as long as it
+# has to be, so the room is made first and the words go on top of it
+print "and rpop reaches a slot of the stack as well: "
+grow 6
+mov $3, 10
+mov $4, 20
+mov $5, 30
+rpop $0, $1, $2
+print "$0 is ", $0, ", $1 is ", $1, " and $2 is ", $2, "\n"
+
+# the pair that earns them a place: one rpush and one pop, and the func reads its
+# arguments off the stack in the order the names are written
+print "a func reads its arguments off the stack in order: "
+rpush 7, 42
+call show_two
+print "\n"
+
+# the stack belongs to the program rather than to the body, so a body that used
+# it gives the scratch back before it returns
+print "and gives the stack back before it returns: "
+push 1, 2, 3         # three words the program is using for its own work
+gsp before
+rpush 7, 42
+call take_two
+gsp after
+print "the stack held ", before, " word(s) before and ", after, " word(s) after\n"
+
+func show_two
+gsp show_base
+pop show_first, show_second
+print show_first, " is ", show_second
+ssp show_base
+endfunc
+
+func take_two
+gsp take_base
+pop take_first, take_second
+print take_first, " and ", take_second, " off the stack\n"
+ssp take_base
+endfunc

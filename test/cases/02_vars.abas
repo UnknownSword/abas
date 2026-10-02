@@ -1,0 +1,79 @@
+## cases/02_vars.abas : names, numbers and every command that changes a value ##
+
+# a name does not have to be declared before it is used. the first time a
+# command writes to a name, that name comes to life with the value it was given,
+# so 'mov a, 20' is all it takes
+mov a, 20
+mov b, 22
+
+# var writes a name down holding 0, and it is optional
+var c, d, e
+
+print "add "; mov c, a; add c, b; print c, "\n"
+print "sub "; mov c, a; sub c, b; print c, "\n"
+print "mul "; mov c, a; mul c, b; print c, "\n"
+print "div "; mov d, 100; div d, 7; print d, "\n"
+print "mod "; mov d, 100; mod d, 7; print d, "\n"
+print "inc "; mov c, 41; inc c; print c, "\n"
+print "dec "; mov c, 43; dec c; print c, "\n"
+
+# numbers can be written in any base
+mov e, 0b1011
+print "0b1011 is ", e, "\n"
+mov e, 0o17
+print "0o17 is ", e, "\n"
+mov e, 0xff
+print "0xff is ", e, "\n"
+
+# the bit wise commands work on the whole 64 bit word
+mov e, 0xf0
+and e, 0x3c
+print "0xf0 and 0x3c is ", e, "\n"
+or e, 1
+print "then or 1 is ", e, "\n"
+xor e, 0xff
+print "then xor 0xff is ", e, "\n"
+mov e, 0xf0
+not e
+and e, 0xff
+print "not 0xf0 and 0xff is ", e, "\n"
+mov e, 0xf0
+nor e, 0x0f
+print "0xf0 nor 0x0f is ", e, "\n"
+
+# negative numbers keep working
+mov e, -7
+div e, 2
+print "-7 div 2 is ", e, "\n"
+mov e, -7
+mod e, 2
+print "-7 mod 2 is ", e, "\n"
+
+# a name is equal to its value, c is still 42
+mov d, c
+print "copy of c is ", d, "\n"
+
+# text is a value too
+mov d, "text"
+print d
+print "\n"
+
+# every name a var is given holds 0, since 0 is the value a name is worked on
+# from. there is no value to give a var, so a name holding a number, a name or a
+# piece of text is a mov
+var zero_here, also_zero
+print "var zero_here is ", zero_here, " and var also_zero is ", also_zero, "\n"
+mov copied, a
+print "a copy of a is a mov, so copied is ", copied, "\n"
+mov word, "hello"
+print "and text goes in the same way, so word holds ", word, "\n"
+
+# every argument of a var is a name, so a value written after a comma is a name
+# that is not there. take the hash off the next line to watch abas say so
+# var not_a_name, 5
+
+# clv throws every name away, so the names of this program have to be made again
+clv
+mov a, 7
+print "after clv, a is a new name holding ", a, "\n"
+exit 0

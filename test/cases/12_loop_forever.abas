@@ -1,0 +1,18 @@
+## cases/12_loop_forever.abas : a loop that never comes back ##
+
+# neither loop nor endloop does anything when it runs, so the body is simply the
+# commands between the two and the program carries on under the endloop when it
+# reaches it. what makes a loop go round is a continue, and a continue with no
+# way out of the loop in any of its turns runs for ever, which is what this case
+# is. the only thing that stops it is the step limit in 12_loop_forever.args
+#
+# what it got through before the limit caught it is in 12_loop_forever.out
+
+mov i, 0
+loop runaway
+inc i
+print i, " "
+continue
+endloop
+
+print "this line is never reached\n"

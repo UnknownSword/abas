@@ -1,0 +1,8 @@
+push  a, b, c then pop  first, second, third: 3 2 1
+rpush a, b, c then pop  first, second, third: 1 2 3
+push  a, b, c then rpop first, second, third: 1 2 3
+the values themselves are not touched, only the order: 10 20 30
+and rpop reaches a slot of the stack as well: $0 is 10, $1 is 20 and $2 is 30
+a func reads its arguments off the stack in order: 7 is 42
+and gives the stack back before it returns: 7 and 42 off the stack
+the stack held 8 word(s) before and 10 word(s) after

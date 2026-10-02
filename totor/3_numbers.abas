@@ -1,0 +1,62 @@
+## totor/3_numbers.abas : every way to write a number ##
+
+# a number is a whole number that is kept as a signed 64 bit word. it goes up
+# to 9223372036854775807 and down to -9223372036854775808
+mov big, 9223372036854775807
+mov small, -9223372036854775808
+print "the biggest is ", big, "\n"
+print "the smallest is ", small, "\n"
+
+# a number is written plain in base ten
+mov ten, 42
+print "plain ", ten, "\n"
+
+# and with a prefix when it suits the number better. 0b is base two, 0o is
+# base eight and 0x is base sixteen. the letters are not case sensitive
+mov two, 0b1011
+mov eight, 0o17
+mov sixteen, 0xff
+print "0b1011 is ", two, "\n"
+print "0o17 is ", eight, "\n"
+print "0xff is ", sixteen, "\n"
+
+# a minus sign in front of any of them works the way it should
+mov minus, -0x10
+print "-0x10 is ", minus, "\n"
+
+# a single quote holds one character, and a character is a number too. 'A' is
+# 65, '0' is 48 and space is 32, which is why numbers are turned into text by
+# adding 48 to them in 10_text_words
+mov letter, 'A'
+mov zero, '0'
+mov space, ' '
+print "'A' is ", letter, "\n"
+print "'0' is ", zero, "\n"
+print "' ' is ", space, "\n"
+
+# a character between single quotes takes the same backslash escapes as text,
+# so you can write the codes of the characters you have no key for
+mov tab, '\t'
+mov nul, '\0'
+mov quote, '\''
+print "the code of a tab is ", tab, "\n"
+print "the code of a null is ", nul, "\n"
+print "the code of a single quote is ", quote, "\n"
+
+# the one escape a character cannot hold is \n, a newline. abas will not put a
+# line end inside a line. the code of a newline is 10, so when a program has to
+# look for one it compares against 10. see 9_io
+
+# the escapes abas knows inside ' and inside " are
+#   \n  a newline        \t  a tab           \v  a vertical tab
+#   \r  a return         \a  a bell           \b  a backspace
+#   \f  a form feed      \0  a null
+#   \\  a backslash      \'  a single quote   \"  a double quote
+# a backslash in front of anything else is that character itself, so "\q" is a
+# backslash and a q. put two backslashes in when you mean one
+
+# print writes a number in base ten and there is no other way, so a program
+# that has to show a number in base two has to build the digits itself, which
+# is what lib/printnum.abas does the long way round
+
+exit 0

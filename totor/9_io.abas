@@ -1,0 +1,81 @@
+## totor/9_io.abas : reading and writing, and the four ways out ##
+# put writes one byte.  print writes text or a whole number in base ten, as many
+# values as one line holds.  err writes to stderr like put does.
+# get reads one byte from stdin into a name.
+#
+# print writes no newline of its own, so a line is ended by the program rather
+# than by the command that wrote it. 'print "\n"' ends a line and 'print' on its
+# own writes nothing at all. a character is a number, so 'print '\n'' writes the
+# number 10 rather than the line end
+
+# put writes the lowest byte of a value, a number or a character
+put 'h'
+put 'i'
+print "\n"
+
+# a character literal is the code of the character, and put writes that code as
+# the character it stands for
+mov c, 'a'
+put c
+print "\n"
+
+# a plain number works the same way, 98 is 'b'
+mov c, 98
+put c
+print "\n"
+
+# put writes one byte and drops the rest of the word, so 321 is 'A' because
+# 321 - 256 is 65. print would write the whole number instead
+mov c, 321
+put c
+print " and print says ", c, "\n"
+
+# print writes a whole number in base ten, with no sign for a positive one
+mov n, 12345
+print "n is ", n, "\n"
+
+# print writes text too, so one line can mix as many of both as it likes, and
+# the values are written one after another with nothing between them
+mov m, n
+inc m
+print "n is ", n, " and n + 1 is ", m, "\n"
+
+# err writes to the error output. run the program and look for this line in
+# your terminal, it shows up even if you redirect stdout
+err "this line goes to stderr"
+print "\n"
+
+# get reads one byte into a name, and the name holds the code of that byte. the
+# program waits for you, so type one character and no enter. press enter instead
+# and get will read that newline for you, its code is 10, and the number it
+# prints below will be 10 rather than the code you meant to type
+print "type one character (no enter): "
+get c
+print "the code of it is ", c, "\n"
+
+# get one byte at a time is all there is, so a program that wants a whole line
+# keeps calling it until it reads a newline, whose code is 10. the loop is a
+# func of its own because it calls itself, so the words it reads do not have to
+# be named. type a line and press enter, it comes back out in front of you
+print "type a line: "
+call echo_line
+
+# get at the end of the input stops the program with an error, because there is
+# no byte to read and abas will not invent one
+# get c
+
+exit 0
+
+# reads characters until a newline or the end of the input and writes them back
+# out as they came in. it says rather than tells, so it ends on a bare endfunc and
+# the caller pops nothing
+func echo_line
+flag echo_line_read
+get c
+cmp c, 10
+je echo_line_done
+put c
+jmp echo_line_read
+flag echo_line_done
+print "\n"
+endfunc

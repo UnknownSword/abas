@@ -1,0 +1,72 @@
+## totor/2_vars.abas : names, and the var that is optional ##
+
+# a name holds one value. a value is a number or a piece of text.
+#
+# the point of this lesson is that a name does not have to exist before it is
+# used. the first command that writes to a name creates it, with the value it
+# was handed. so this is a whole declaration:
+mov count, 3
+
+# and this one only changes what is already there
+mov count, 4
+print "count is ", count, "\n"
+
+# a name can start out as text just as well as a number
+mov word, "abas"
+print word
+print "\n"
+
+# var writes down the names a piece of work is going to need, and gives each of
+# them 0. that is worth doing when the names are wanted in one place at the top of
+# it, and every one of them is there to be worked on before it holds anything
+# worth working with
+var left_side, right_side, answer
+print "var left_side is ", left_side, ", var right_side is ", right_side
+print " and var answer is ", answer, "\n"
+
+# as many names as are wanted on the one line, and every one of them holds 0
+var a, b, c, d, e
+print "var a, b, c, d, e are ", a, " ", b, " ", c, " ", d, " ", e, "\n"
+
+# and nothing needs var. the first mov below is the whole declaration of that
+# name, and the program would run exactly the same without a single var in it
+mov made_by_mov, 11
+print "made by a mov: ", made_by_mov, "\n"
+
+# a value goes into a name with a mov, whether the value is a number, a name or a
+# piece of text, and that is the one command that gives a name something
+mov zero, 0
+mov nothing, ""
+print "zero is ", zero, ", nothing holds ", nothing
+print "\n"
+
+# a name can also be given the value of a name, and then the two are equal
+mov left, 10
+mov right, left
+add right, 5
+print "left is ", left, " and right is ", right
+print "\n"
+
+# a name that is read before anything has written to it is an error, because
+# there is nothing to read. the fix is the same as always, give it a value with
+# a mov, or a var for a 0. move the next line above the print to see the error
+# abas gives:
+mov answer2, 42
+print "and a name that was given a value reads back: ", answer2
+print "\n"
+
+# every argument of a var is a name, and there is no value to give one, so a
+# number or a piece of text after a comma is a name that is not there. take the
+# hash off the next line to see abas stop on it
+# var not_a_name, 5
+
+# clv throws every name away, so a name that is read after it has to be given a
+# value again. take the hash off the next line to see abas stop on it
+# clv
+# print count
+
+# and a name keeps its value from one line to the next, there is no scope and
+# no block. that is why the name of a variable of a function has to start with
+# something of its own if two functions use it, more on that in 7_functions
+
+exit 0

@@ -1,0 +1,74 @@
+func getnum
+	# save stack pointer
+	gsp sp
+	# its a final value that store in index sp
+	push 0
+	mov __pos, 1
+	
+	
+	loop
+		get __c
+		
+		cmp __c, '-'
+		jne __tmp
+		
+		not __pos
+		continue
+		
+		flag __tmp
+		je __will_braek
+		cmp __c, '\0'
+		je __will_braek
+		cmp __c, '\n'
+		je __will_braek
+		cmp __c, ' '
+		je __will_braek
+		cmp __c, '\t'
+		je __will_braek
+		
+		sub __c, 48
+		mul $sp, 10
+		add $sp, __c
+		continue
+		flag __will_braek
+	endloop
+	
+	cmp __pos, 1
+	je __its_pos
+	mul $sp, -1
+	flag __its_pos
+	
+	clf __will_braek, __its_pos, __tmp
+	clv __c, __pos
+	inc sp
+	ssp sp
+	# set the stack pointer back
+endfunc
+
+
+print "Enter the seed : "
+call getnum
+pop n
+print "seed : ", n, "\n"
+
+mov m, n
+lsh n, 12
+xor n, m
+pow n, m
+add m, n
+lsh n, 16
+add n, 0x2383
+xor n, m
+mul n, 313
+add n, m
+mov m, n
+rsh m, 16
+lsh n, 32
+xor n, m
+
+cmp n, 0
+jge a
+mul n, -1
+flag a
+
+print "value = ", n, "\n"

@@ -1,0 +1,13 @@
+double(21) is 42
+three gave 10 20 30
+quiet was here
+after quiet the stack holds 0
+bump left n at 11
+wrap(5) is 10
+fact(6) is 720
+fact(10) is 3628800
+greet wrote 2 bytes, pop gives the last one: 105
+and it is the code of a character, not the character: i
+the func called version is number 2
+the outer func is running, and it is calling the inner one: the inner one says 42
+a func called out of another one and got 99

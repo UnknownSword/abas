@@ -1,0 +1,67 @@
+## totor/11_include.abas : using other files ##
+# include is a compile time thing. the commands of the file it names are pasted
+# into the command stream before anything runs, so the program is one long list
+# of commands no matter how many files it came from.
+
+include "lib/putchar.abas", "lib/printnum.abas"
+include "lib/printstr.abas"
+include "lib/strlen.abas"
+
+# putchar puts the character that stands in the name pc
+mov pc, 'h'
+call putchar
+mov pc, 'i'
+call putchar
+print "\n"
+
+# printnum prints the number that stands in the name pn. it ends on an endfunc, so
+# it gives nothing back and there is nothing to pop after the call
+mov pn, 0
+call printnum
+mov pn, 12345
+call printnum
+print "\n"
+
+# printstr prints ps_len bytes of the stack starting at the slot ps_at
+# so here it prints the two letters that are in slots 0 and 1
+ssp 0
+mov $0, "ab"
+mov ps_at, 0
+mov ps_len, 2
+call printstr
+print "\n"
+ssp 0
+
+# strlen counts the words from slot sl_at up to the first one that is 0, so the
+# text has to end with a zero byte. mov $slot, "text" writes the bytes in order,
+# so a zero byte after them ends it. strlen gives the count back with a ret, so
+# that one value is popped by the caller
+ssp 0
+mov $0, "hi"
+mov $2, 0
+mov sl_at, 0
+call strlen
+pop len
+print "the length of \"hi\" is "
+print len
+print "\n"
+ssp 0
+
+# a library function is an ordinary func. what makes it a library is that its
+# names all start with its own prefix, so two of them cannot tread on each other
+# even though names belong to the whole program
+
+# -I tells abas where to look for a file. without it, include looks next to the
+# file that includes it, and then in the directories named by -I
+#
+#     ./bin/main -I . totor/11_include.abas
+#     ./bin/main -I lib -I . totor/11_include.abas
+
+# a file that includes itself, directly or by way of another file, is an error
+# and abas stops before running anything
+
+# to see the commands an include produced, ask for the whole stream
+#
+#     ./bin/main -I . -p totor/11_include.abas
+
+exit 0

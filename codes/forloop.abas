@@ -1,0 +1,74 @@
+# basic for loop in high level languages
+
+## c
+# for(int i=0 ; i < 10 ; i++){
+#	printf("%d -> Hello World\n", i);
+# } 
+##
+
+## cpp
+#	for(int i=0 ; i < 10 ; i++){
+#		cout << i << " -> " << "Hello World !" << endl;
+#	}
+##
+
+## python
+#	for i in range(10):
+#		print(i, " -> Hello World !")
+##
+
+## java script
+# for( let i=0 ; i < 10 ; i++ ){
+#	 console.log(i, "-> Hello World !")
+# }
+##
+
+# basic loop in abas
+
+mov i, 0
+flag myloop
+
+# if i >= 10 :
+#	break
+cmp i, 10
+jge endloop
+
+# body
+
+print i
+print " -> Hello World !", "\n"
+
+# i++
+inc i
+# jump to begin
+jmp myloop
+# end loop
+flag endloop
+
+print "\n"
+
+# ===================================
+#  the same loop again, written with loop, endloop, break and continue
+# ===================================
+
+mov i, 2
+loop
+
+# if i >= 10 :
+#	break
+cmp i, 10
+jge stop
+
+print i, " -> Hello World !", "\n"
+
+inc i
+continue
+
+# the flag the jump above lands on falls on to the break, since break itself
+# asks nothing of anybody
+flag stop
+break
+endloop
+
+print "\n"
+

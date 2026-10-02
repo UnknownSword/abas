@@ -1,0 +1,27 @@
+func print_stack
+
+	gsp sp
+	print "stack size = ", sp, "\n"
+
+	mov i, 0
+	flag __myloop
+
+	cmp i, sp
+	jge __endloop
+
+	print i
+	print " -> "
+	print $i, "\n"
+
+	inc i
+	jmp __myloop
+	flag __endloop
+
+endfunc
+
+mov val, 177
+push 10,12,32
+push 54, $1, val
+
+call print_stack
+print "end"

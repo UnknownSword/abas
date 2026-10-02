@@ -1,0 +1,50 @@
+## totor/1_comment.abas : saying things without running them ##
+
+# a comment starts with one hash and holds everything up to the end of the
+# line. abas never looks inside it
+print "this line runs"
+print "\n"
+
+print "this line has a comment behind it" # and the comment is ignored
+print "\n"
+
+# a comment on a line of its own is a note to whoever reads the program, and
+# it is the easiest way to switch a line off while you work on it
+# print "this line is switched off"
+
+# a comment can open and close on one line, with two hashes at each end
+## this whole note is a comment ##
+print "this line runs too"
+print "\n"
+
+# or it can run on for as many lines as it needs. it ends at the first pair of
+# hashes that comes after the one that opened it, so keep the pair that closes
+# your note at the end of its last line
+## this note runs over
+these three lines ##
+print "and this line runs as well"
+print "\n"
+
+# that first pair is what catches people out. a line that starts with two
+# hashes ends the comment right there, and whatever stands behind them is code
+# again. put one of these two lines back the way it is and run the file to see
+# what abas makes of the tail of it:
+# ## this line ends the note above
+# "and this half of it is not a comment"
+
+# a comment that is never closed is an error. abas stops with "unterminated
+# multi line comment", so the hashes that close a note are not optional
+#
+# to see that error, take the closing pair off the end of the three line note
+# above and run the file again
+
+# nothing of the comments reached abas. to see what abas made of this file, ask
+# it for the commands instead of running them
+#
+#     ./bin/main -p totor/1_comment.abas
+#
+# to see only the tokens it found
+#
+#     ./bin/main -t totor/1_comment.abas
+
+exit 0

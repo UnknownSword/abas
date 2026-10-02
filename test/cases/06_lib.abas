@@ -1,0 +1,67 @@
+## cases/06_lib.abas : the standard library, brought in with include ##
+
+include "lib/putchar.abas", "lib/printnum.abas"
+include "lib/printstr.abas"
+include "lib/strlen.abas", "lib/readline.abas"
+
+# putchar puts the character that stands in the name pc
+mov pc, 'h'
+call putchar
+mov pc, 'i'
+call putchar
+print "\n"
+
+# printnum prints the number that stands in the name pn. it ends on an endfunc, so
+# it gives nothing back and the caller pops nothing
+mov pn, 0
+call printnum
+mov pn, 12345
+call printnum
+print "\n"
+
+# printstr prints ps_len bytes of the stack starting at the slot ps_at
+ssp 0
+mov $0, "ab"
+mov ps_at, 0
+mov ps_len, 2
+call printstr
+print "\n"
+ssp 0
+
+# strlen counts the words from slot sl_at up to the first one that is 0, so the
+# text has to end with a zero byte. it gives the count back with a ret, so that
+# one word is popped by the caller
+ssp 0
+mov $0, "hi"
+mov $2, 0
+mov sl_at, 0
+call strlen
+pop len
+print "the length of \"hi\" is ", len, "\n"
+ssp 0
+
+# readline is a library function like the rest, and it ends on a ret because it
+# has something to say. it needs a byte for the newline, so the stack has to
+# have room for the line before it is called
+ssp 0
+grow 200
+call readline
+pop len
+print "you typed ", len, " byte(s)", "\n"
+ssp 0
+
+# a library function is an ordinary func, and what makes it a library is that
+# its own names all start with its own prefix
+#
+# a func ends on endfunc, and endfunc is the only thing that closes one. a func that
+# has nothing to say ends on a bare endfunc and the caller pops nothing, which is
+# what putchar, printnum and printstr do. a func that does have something to
+# say ends its early paths on a ret and its last path on an endfunc that gives
+# nothing, so the caller always pops exactly one word, which is what strlen and
+# readline do
+#
+# a name may be given a new func while an older one of the same name is still in
+# the program, and a call goes to the last one. that is how a program replaces
+# what a library did, and it is the same rule a flag follows
+
+exit 0
