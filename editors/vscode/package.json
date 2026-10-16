@@ -1,0 +1,46 @@
+{
+  "name": "abas",
+  "displayName": "Abas",
+  "description": "Syntax highlighting and language configuration for the Abas programming language.",
+  "version": "0.1.0",
+  "publisher": "unknownsword",
+  "license": "BSD-3-Clause",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "abas",
+    "syntax",
+    "highlighting",
+    "language"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UnknownSword/abas"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "abas",
+        "aliases": [
+          "Abas",
+          "abas"
+        ],
+        "extensions": [
+          ".abas"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "abas",
+        "scopeName": "source.abas",
+        "path": "./syntaxes/abas.tmLanguage.json"
+      }
+    ]
+  }
+}

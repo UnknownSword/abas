@@ -1,21 +1,18 @@
 # abas
 
+<img src="assets/logo/abas-logo.jpg" alt="Abas logo" width=128 height="128"/>
+
 **this language created for my friend abas**
 
 > a little stack language: a program is a list of commands, abas runs them from
 > the top down and stops when the commands run out
 
 ```abas
-mov greeting, "hello "
-mov who, "world"
-
-print greeting
-print who
-print "\n"
+print "Abas build diffrent", "\n"
 ```
 
 ```
-hello world
+Abas build diffrent
 ```
 
 abas is small on purpose. Every value is one 64 bit word, every name is a word,

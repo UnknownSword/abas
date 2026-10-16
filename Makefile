@@ -8,8 +8,6 @@ CXXFLAGS     := -Iinclude
 SAFE_FLAGS   := -fsanitize=address,undefined -fno-omit-frame-pointer -fwrapv -Wall -Wextra -g
 LIBS :=
 
-CXXFLAGS += $(SAFE_FLAGS)
-
 SRC_DIR      := src
 INCLUDE_DIR  := include
 BUILD_DIR    := build
@@ -17,7 +15,7 @@ BIN_DIR      := bin
 TEST_DIR     := test
 
 MAIN_SRC     := main
-BINARY       := $(BIN_DIR)/$(MAIN_SRC)
+BINARY       := abas
 MAIN_FILE    := $(TEST_DIR)/cases/01_hello.abas
 
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp' -o -name '*.c')
@@ -64,6 +62,6 @@ check: test
 
 clean:
 	@echo "Cleaning up ..."
-	rm -rf $(BUILD_DIR) $(BIN_DIR) tmp
+	rm -rf $(BUILD_DIR) $(BIN_DIR) abas
 
 -include $(DEPS)

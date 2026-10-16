@@ -1,0 +1,157 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Abas",
+  "scopeName": "source.abas",
+  "patterns": [
+    { "include": "#function-names" },
+    { "include": "#keywords" },
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#characters" },
+    { "include": "#numbers" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.abas",
+          "begin": "##",
+          "end": "##",
+          "patterns": [
+            { "include": "#todo" }
+          ]
+        },
+        {
+          "name": "comment.line.number-sign.abas",
+          "begin": "#",
+          "end": "$",
+          "patterns": [
+            { "include": "#todo" }
+          ]
+        }
+      ]
+    },
+    "todo": {
+      "patterns": [
+        {
+          "name": "keyword.other.todo.abas",
+          "match": "\\b(?:TODO|FIXME|XXX|NOTE)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.abas",
+          "begin": "\"",
+          "end": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.abas" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.abas" }
+          },
+          "patterns": [
+            { "include": "#escape-sequence" }
+          ]
+        }
+      ]
+    },
+    "characters": {
+      "patterns": [
+        {
+          "match": "'(\\\\.)'",
+          "captures": {
+            "0": { "name": "string.quoted.single.abas" },
+            "1": { "name": "constant.character.escape.abas" }
+          }
+        },
+        {
+          "name": "string.quoted.single.abas",
+          "match": "'[^'\\\\]'"
+        }
+      ]
+    },
+    "escape-sequence": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.abas",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.abas",
+          "match": "\\b0[xX][0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.binary.abas",
+          "match": "\\b0[bB][01]+\\b"
+        },
+        {
+          "name": "constant.numeric.octal.abas",
+          "match": "\\b0[oO][0-7]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.abas",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.abas",
+          "match": "\\b(?:break|call|cmp|continue|endfunc|endloop|exit|flag|func|include|je|jge|jg|jl|jle|jne|jmp|loop|ret)\\b"
+        },
+        {
+          "name": "keyword.other.abas",
+          "match": "\\b(?:add|and|clear|clf|clv|cls|dec|div|err|get|gcp|grow|gsp|inc|lsh|mod|mov|mul|nor|not|or|pop|pow|print|push|put|rpop|rpush|rsh|ssp|sub|var|xor)\\b"
+        }
+      ]
+    },
+    "function-names": {
+      "patterns": [
+        {
+          "match": "\\b(func|flag|call|loop|endloop|jmp|je|jne|jl|jg|jle|jge)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.control.abas" },
+            "2": { "name": "entity.name.function.abas" }
+          }
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.pointer.abas",
+          "match": "\\$+"
+        },
+        {
+          "name": "keyword.operator.abas",
+          "match": "[+*/%&|^<>=-]"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.terminator.abas",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.separator.abas",
+          "match": "[,.:]"
+        },
+        {
+          "name": "punctuation.bracket.abas",
+          "match": "[()]"
+        }
+      ]
+    }
+  }
+}

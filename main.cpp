@@ -8,7 +8,7 @@
 using namespace std;
 
 static void usage(const char* prog){
-	cout << "abas, a little stack language\n\n";
+	cout << "* Abas programing language *\n\n";
 	cout << "usage: " << prog << " [options] <file.abas> [file2.abas ...]\n\n";
 	cout << "  -t     only print the tokens of every file\n";
 	cout << "  -p     only print the commands of every file\n";
