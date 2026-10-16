@@ -387,16 +387,7 @@ something the program made and a call that is running still has to come back.
 
 ## The standard library
 
-`lib/` is written in abas, so it is also the way the language is meant to be
-read.
-
-| | |
-|---|---|
-| `lib/putchar.abas` | `mov pc, 'A'` then `call putchar` |
-| `lib/printnum.abas` | prints the number in `pn`, digit by digit, the hard way |
-| `lib/printstr.abas` | prints `ps_len` bytes of the stack starting at `ps_at` |
-| `lib/strlen.abas` | counts the words from `sl_at` up to the first one that is 0, and returns the count |
-| `lib/readline.abas` | reads a line, and returns its length |
+not added yet
 
 ## Tutorials
 
